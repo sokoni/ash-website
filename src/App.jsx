@@ -1,0 +1,206 @@
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import WebsiteCatalog from './components/WebsiteCatalog';
+import LivePreviewModal from './components/LivePreviewModal';
+import PricingSection from './components/PricingSection';
+import PaymentModal from './components/PaymentModal';
+import AuthModal from './components/AuthModal';
+import UserDashboard from './components/UserDashboard';
+import DeploymentBridge from './components/DeploymentBridge';
+import Footer from './components/Footer';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, deployment, dashboard
+  
+  // User Session State
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('websphere_user_session');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return null; }
+    }
+    // Default Demo Account initialized for convenient testing
+    return {
+      id: 'usr_individual_101',
+      name: 'Alex Morgan',
+      email: 'alex.morgan@dev.io',
+      role: 'Individual Developer Account',
+      createdAt: '2026-07-28'
+    };
+  });
+
+  // Purchased Website State
+  const [purchases, setPurchases] = useState(() => {
+    const saved = localStorage.getItem('websphere_purchases');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return []; }
+    }
+    return [
+      {
+        id: 'ord_demo_1',
+        websiteId: 'web-nexus-saas',
+        websiteName: 'Nexus SaaS Pro',
+        price: 49,
+        paymentMethod: 'card',
+        licenseKey: 'WS-LIC-NEXUS-9821X',
+        date: '2026-07-29',
+        downloadUrl: '#'
+      }
+    ];
+  });
+
+  // Modal Controls
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [buyTarget, setBuyTarget] = useState(null);
+  const [authModalState, setAuthModalState] = useState({ isOpen: false, mode: 'signin' });
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Sync to localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('websphere_user_session', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('websphere_user_session');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem('websphere_purchases', JSON.stringify(purchases));
+  }, [purchases]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    showToast('Signed out of individual account');
+  };
+
+  const handleLoginSuccess = (userProfile) => {
+    setUser(userProfile);
+    setAuthModalState({ isOpen: false, mode: 'signin' });
+    showToast(`Welcome back, ${userProfile.name}!`);
+  };
+
+  const handleSuccessPayment = (order) => {
+    setPurchases(prev => [order, ...prev]);
+    setBuyTarget(null);
+    setActiveTab('dashboard');
+    showToast(`Success! ${order.websiteName} added to your account.`);
+  };
+
+  const handleSelectBuyTier = (tier) => {
+    setBuyTarget({
+      id: tier.id,
+      name: tier.name,
+      price: parseInt(tier.price.replace('$', '')) || 49
+    });
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#070A0F] text-[#F0F6FC]">
+      
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-24 right-6 z-50 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#A0C4FF] to-[#38BDF8] text-[#070A0F] font-bold text-xs shadow-2xl shadow-[#38BDF8]/30 flex items-center gap-2 animate-bounce">
+          <span>✨ {toastMessage}</span>
+        </div>
+      )}
+
+      {/* Glassmorphic Navbar */}
+      <Navbar
+        user={user}
+        onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
+        onLogout={handleLogout}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        purchasedCount={purchases.length}
+      />
+
+      {/* Main Content Area */}
+      <main className="flex-1">
+        
+        {activeTab === 'marketplace' && (
+          <>
+            <Hero
+              onExplore={() => {
+                const el = document.getElementById('catalog');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              onViewPricing={() => setActiveTab('pricing')}
+              onViewDeploy={() => setActiveTab('deployment')}
+            />
+            <WebsiteCatalog
+              onSelectPreview={(site) => setPreviewTemplate(site)}
+              onSelectBuy={(site) => setBuyTarget(site)}
+            />
+          </>
+        )}
+
+        {activeTab === 'pricing' && (
+          <PricingSection
+            onSelectTier={handleSelectBuyTier}
+            onSelectPaymentMethod={(methodId) => {
+              setBuyTarget({
+                id: 'custom-package',
+                name: `Website Custom License (${methodId.toUpperCase()})`,
+                price: 149
+              });
+            }}
+          />
+        )}
+
+        {activeTab === 'deployment' && (
+          <DeploymentBridge />
+        )}
+
+        {activeTab === 'dashboard' && (
+          <UserDashboard
+            user={user}
+            purchases={purchases}
+            onOpenDeploy={() => setActiveTab('deployment')}
+            onSelectMarketplace={() => setActiveTab('marketplace')}
+          />
+        )}
+
+      </main>
+
+      {/* Footer */}
+      <Footer onNavigate={setActiveTab} />
+
+      {/* Modals */}
+      {previewTemplate && (
+        <LivePreviewModal
+          template={previewTemplate}
+          onClose={() => setPreviewTemplate(null)}
+          onBuyNow={(site) => setBuyTarget(site)}
+        />
+      )}
+
+      {buyTarget && (
+        <PaymentModal
+          item={buyTarget}
+          user={user}
+          onClose={() => setBuyTarget(null)}
+          onSuccessPayment={handleSuccessPayment}
+          onRequireAuth={() => {
+            setBuyTarget(null);
+            setAuthModalState({ isOpen: true, mode: 'signin' });
+            showToast('Please sign in to complete individual purchase');
+          }}
+        />
+      )}
+
+      {authModalState.isOpen && (
+        <AuthModal
+          initialMode={authModalState.mode}
+          onClose={() => setAuthModalState({ isOpen: false, mode: 'signin' })}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
+
+    </div>
+  );
+}
