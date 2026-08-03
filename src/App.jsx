@@ -12,7 +12,7 @@ import Footer from './components/Footer';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, deployment, dashboard
-  
+
   // User Session State
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('websphere_user_session');
@@ -101,7 +101,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#070A0F] text-[#F0F6FC]">
-      
+
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div className="fixed top-24 right-6 z-50 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#A0C4FF] to-[#38BDF8] text-[#070A0F] font-bold text-xs shadow-2xl shadow-[#38BDF8]/30 flex items-center gap-2 animate-bounce">
@@ -121,7 +121,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1">
-        
+
         {activeTab === 'marketplace' && (
           <>
             <Hero

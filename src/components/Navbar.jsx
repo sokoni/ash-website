@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ShoppingBag, User, LogOut, Code, CheckCircle, ExternalLink } from 'lucide-react';
+import { Sparkles, ShoppingBag, User, LogOut, Code, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export default function Navbar({ 
   user, 
@@ -7,8 +7,7 @@ export default function Navbar({
   onLogout, 
   activeTab, 
   setActiveTab, 
-  purchasedCount,
-  onOpenCart 
+  purchasedCount 
 }) {
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-[#A0C4FF]/15 bg-[#070A0F]/80 backdrop-blur-md">
@@ -89,25 +88,26 @@ export default function Navbar({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`flex items-center gap-2.5 px-4 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-semibold transition-all ${
                   activeTab === 'dashboard'
                     ? 'bg-[#A0C4FF]/20 border-[#A0C4FF] text-white shadow-lg shadow-[#A0C4FF]/10'
                     : 'bg-[#0E1420] border-[#A0C4FF]/20 text-[#B9D6F2] hover:border-[#A0C4FF]/40 hover:text-white'
                 }`}
               >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#38BDF8] to-[#A0C4FF] text-[#070A0F] font-bold flex items-center justify-center text-xs">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
                 </div>
-                <span className="max-w-[100px] truncate">{user.name || user.email}</span>
-                <CheckCircle className="w-3.5 h-3.5 text-[#38BDF8]" />
+                <span className="max-w-[90px] truncate">{user.name || user.email}</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" title="2-Step Verified Session" />
               </button>
 
               <button
                 onClick={onLogout}
-                className="p-2.5 rounded-xl bg-[#0E1420] border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-all"
-                title="Sign Out"
+                className="px-3.5 py-2 rounded-xl bg-[#0E1420] border border-red-500/25 text-red-400 hover:bg-red-500/15 hover:border-red-500/50 text-xs font-bold flex items-center gap-1.5 transition-all"
+                title="Sign Out of Customer Account"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
               </button>
             </div>
           ) : (
@@ -116,14 +116,14 @@ export default function Navbar({
                 onClick={() => onOpenAuth('signin')}
                 className="px-4 py-2 text-sm font-semibold text-[#B9D6F2] hover:text-white transition-colors"
               >
-                Sign In
+                Customer Sign In
               </button>
               <button
                 onClick={() => onOpenAuth('signup')}
-                className="btn-pastel-primary px-5 py-2 rounded-xl text-sm flex items-center gap-2"
+                className="btn-pastel-primary px-4 py-2 rounded-xl text-sm flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
-                <span>Create Account</span>
+                <span>Register</span>
               </button>
             </div>
           )}
