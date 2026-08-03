@@ -241,15 +241,6 @@ export default function UserDashboard({ user, purchases, onOpenDeploy, onSelectM
                       </>
                     )}
                   </button>
-
-                  <button
-                    onClick={onOpenDeploy}
-                    className="btn-pastel-secondary px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5"
-                    title="Deploy to GitHub & Vercel"
-                  >
-                    <GitBranch className="w-4 h-4" />
-                    <span>Deploy</span>
-                  </button>
                 </div>
 
               </div>

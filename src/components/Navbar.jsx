@@ -55,17 +55,6 @@ export default function Navbar({
           >
             3 Payment Options
           </button>
-
-          <button
-            onClick={() => setActiveTab('deployment')}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              activeTab === 'deployment'
-                ? 'bg-gradient-to-r from-[#A0C4FF]/20 to-[#38BDF8]/20 text-white border border-[#A0C4FF]/40 shadow-sm shadow-[#38BDF8]/10'
-                : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
-            }`}
-          >
-            GitHub & Vercel
-          </button>
         </nav>
 
         {/* User Account / Auth Actions */}

@@ -19,7 +19,7 @@ export default function Footer({ onNavigate }) {
               <span className="font-extrabold text-lg text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
             </div>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
-              Premium website template marketplace featuring 3 payment options, individual sign-in, and automated GitHub/Vercel integrations.
+              Premium website template marketplace featuring 3 payment options, individual sign-in, and instant source code ZIP downloads.
             </p>
           </div>
 
@@ -29,8 +29,7 @@ export default function Footer({ onNavigate }) {
             <ul className="space-y-2 text-xs text-[#94A3B8]">
               <li><button onClick={() => onNavigate('marketplace')} className="hover:text-white transition-colors">Browse Templates</button></li>
               <li><button onClick={() => onNavigate('pricing')} className="hover:text-white transition-colors">3 Payment Tiers</button></li>
-              <li><button onClick={() => onNavigate('deployment')} className="hover:text-white transition-colors">GitHub Sync</button></li>
-              <li><button onClick={() => onNavigate('deployment')} className="hover:text-white transition-colors">Vercel Deployment</button></li>
+              <li><button onClick={() => onNavigate('dashboard')} className="hover:text-white transition-colors">Customer Dashboard</button></li>
             </ul>
           </div>
 
@@ -49,11 +48,11 @@ export default function Footer({ onNavigate }) {
             <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-1">Status & Support</h4>
             <div className="glass-panel p-3 rounded-xl border border-[#A0C4FF]/15 text-xs text-[#B9D6F2] space-y-1.5">
               <div className="flex items-center justify-between">
-                <span>Vercel Deployments:</span>
-                <span className="text-emerald-400 font-bold text-[10px]">Operational</span>
+                <span>Code Package Delivery:</span>
+                <span className="text-emerald-400 font-bold text-[10px]">Instant</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>GitHub API Bridge:</span>
+                <span>License Key Generator:</span>
                 <span className="text-emerald-400 font-bold text-[10px]">Operational</span>
               </div>
             </div>

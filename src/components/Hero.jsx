@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, Zap, GitBranch, Layers, Sparkles, CheckCircle2, CreditCard } from 'lucide-react';
 
-export default function Hero({ onExplore, onViewPricing, onViewDeploy }) {
+export default function Hero({ onExplore, onViewPricing }) {
   return (
     <section className="relative overflow-hidden pt-12 pb-20 border-b border-[#A0C4FF]/10">
       {/* Pastel Blue Ambient Glow Orbs */}
@@ -21,7 +21,7 @@ export default function Hero({ onExplore, onViewPricing, onViewDeploy }) {
           {/* Main Title */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
             Buy Production Websites. <br />
-            <span className="pastel-glow-text">Deploy via GitHub & Vercel.</span>
+            <span className="pastel-glow-text">Instant Source Code & License Ownership.</span>
           </h1>
 
           {/* Subtitle */}
@@ -75,8 +75,8 @@ export default function Hero({ onExplore, onViewPricing, onViewDeploy }) {
                 <GitBranch className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">GitHub Integration</div>
-                <div className="text-xs text-[#94A3B8]">Auto Repository Sync</div>
+                <div className="text-sm font-bold text-white">Full Source Code</div>
+                <div className="text-xs text-[#94A3B8]">Complete IP Transfer</div>
               </div>
             </div>
 
@@ -85,8 +85,8 @@ export default function Hero({ onExplore, onViewPricing, onViewDeploy }) {
                 <Layers className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">Vercel Deployment</div>
-                <div className="text-xs text-[#94A3B8]">1-Click Live Hosting</div>
+                <div className="text-sm font-bold text-white">Commercial License</div>
+                <div className="text-xs text-[#94A3B8]">Instant Rights Key</div>
               </div>
             </div>
           </div>

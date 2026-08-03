@@ -7,11 +7,10 @@ import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
-import DeploymentBridge from './components/DeploymentBridge';
 import Footer from './components/Footer';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, deployment, dashboard
+  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, dashboard
 
   // User Session State
   const [user, setUser] = useState(() => {
@@ -130,7 +129,6 @@ export default function App() {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               onViewPricing={() => setActiveTab('pricing')}
-              onViewDeploy={() => setActiveTab('deployment')}
             />
             <WebsiteCatalog
               onSelectPreview={(site) => setPreviewTemplate(site)}
@@ -152,15 +150,10 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'deployment' && (
-          <DeploymentBridge />
-        )}
-
         {activeTab === 'dashboard' && (
           <UserDashboard
             user={user}
             purchases={purchases}
-            onOpenDeploy={() => setActiveTab('deployment')}
             onSelectMarketplace={() => setActiveTab('marketplace')}
           />
         )}
