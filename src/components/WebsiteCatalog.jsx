@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Eye, ShoppingCart, Star, Check, Code2, Sparkles, Filter } from 'lucide-react';
+import { Search, Eye, Calendar, Star, Check, Code2, Sparkles, Filter } from 'lucide-react';
 import { WEBSITE_TEMPLATES } from '../data/websitesData';
 
 export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
@@ -24,13 +24,13 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
         <div>
           <div className="flex items-center gap-2 text-[#38BDF8] text-sm font-semibold mb-2">
             <Sparkles className="w-4 h-4" />
-            <span>Ready-To-Sell Web Codebases</span>
+            <span>Tailored Web Architecture Concepts</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Browse Pre-Built Websites
+            Explore Service Concepts & Designs
           </h2>
           <p className="text-[#94A3B8] text-sm mt-1">
-            Choose your website template, select your payment method, and download full source code instantly.
+            Preview any design framework and book a 1-on-1 strategy consultation to build your custom application.
           </p>
         </div>
 
@@ -146,13 +146,12 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
                 </ul>
               </div>
 
-              {/* Price & Buy Footer */}
+              {/* Consultation CTA Footer */}
               <div className="pt-4 border-t border-[#A0C4FF]/15 flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] text-[#94A3B8] uppercase tracking-wider font-semibold">Price</div>
+                  <div className="text-[10px] text-[#94A3B8] uppercase tracking-wider font-semibold">Consultation</div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-extrabold text-white">${site.price}</span>
-                    <span className="text-xs text-[#94A3B8]">/ Pro ${site.proPrice}</span>
+                    <span className="text-xl font-extrabold text-emerald-400">Free Strategy Call</span>
                   </div>
                 </div>
 
@@ -160,7 +159,7 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
                   <button
                     onClick={() => onSelectPreview(site)}
                     className="p-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-[#A0C4FF] hover:bg-[#141C2E] transition-all"
-                    title="Live Interactive Preview"
+                    title="Live Interactive Concept Preview"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
@@ -169,8 +168,8 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
                     onClick={() => onSelectBuy(site)}
                     className="btn-pastel-primary px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5"
                   >
-                    <ShoppingCart className="w-4 h-4" />
-                    <span>Buy Website</span>
+                    <Calendar className="w-4 h-4" />
+                    <span>Book Consultation</span>
                   </button>
                 </div>
               </div>

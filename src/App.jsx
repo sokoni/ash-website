@@ -28,7 +28,7 @@ export default function App() {
     };
   });
 
-  // Purchased Website State
+  // Purchased / Scheduled Consultations State
   const [purchases, setPurchases] = useState(() => {
     const saved = localStorage.getItem('blackline_purchases');
     if (saved) {
@@ -36,13 +36,14 @@ export default function App() {
     }
     return [
       {
-        id: 'ord_demo_1',
+        id: 'booking_demo_1',
         websiteId: 'web-nexus-saas',
-        websiteName: 'Nexus SaaS Pro',
-        price: 49,
-        paymentMethod: 'card',
-        licenseKey: 'BLC-LIC-NEXUS-9821X',
-        date: '2026-07-29',
+        websiteName: 'Nexus SaaS Strategy Session',
+        price: 'Free Consultation',
+        paymentMethod: 'Calendar Booked',
+        licenseKey: 'CONF-BLC-NEXUS98',
+        date: 'Tomorrow (10:00 AM EST)',
+        meetingUrl: 'https://meet.google.com/meet-blc-nexus',
         downloadUrl: '#'
       }
     ];
@@ -74,7 +75,7 @@ export default function App() {
 
   const handleLogout = () => {
     setUser(null);
-    showToast('Signed out of individual account');
+    showToast('Signed out of client account');
   };
 
   const handleLoginSuccess = (userProfile) => {
@@ -87,14 +88,14 @@ export default function App() {
     setPurchases(prev => [order, ...prev]);
     setBuyTarget(null);
     setActiveTab('dashboard');
-    showToast(`Success! ${order.websiteName} added to your account.`);
+    showToast(`Consultation confirmed! ${order.websiteName} added to your portal.`);
   };
 
   const handleSelectBuyTier = (tier) => {
     setBuyTarget({
       id: tier.id,
       name: tier.name,
-      price: parseInt(tier.price.replace('$', '')) || 49
+      price: tier.price
     });
   };
 
@@ -129,6 +130,7 @@ export default function App() {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               onViewPricing={() => setActiveTab('pricing')}
+              onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: '1-on-1 Strategy Consultation' })}
             />
             <WebsiteCatalog
               onSelectPreview={(site) => setPreviewTemplate(site)}
@@ -142,9 +144,9 @@ export default function App() {
             onSelectTier={handleSelectBuyTier}
             onSelectPaymentMethod={(methodId) => {
               setBuyTarget({
-                id: 'custom-package',
-                name: `Website Custom License (${methodId.toUpperCase()})`,
-                price: 149
+                id: methodId,
+                name: `Consultation (${methodId.replace('-', ' ').toUpperCase()})`,
+                price: 'Free'
               });
             }}
           />

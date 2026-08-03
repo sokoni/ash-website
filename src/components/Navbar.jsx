@@ -28,7 +28,7 @@ export default function Navbar({
               <span className="font-extrabold text-xl tracking-tight text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#A0C4FF]/10 text-[#A0C4FF] border border-[#A0C4FF]/30">v2.4</span>
             </div>
-            <span className="text-[11px] text-[#94A3B8] font-medium tracking-wide">Website Sales & Deploy Marketplace</span>
+            <span className="text-[11px] text-[#94A3B8] font-medium tracking-wide">Web Strategy & Custom Design Agency</span>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ export default function Navbar({
                 : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
             }`}
           >
-            Marketplace
+            Service Concepts
           </button>
           
           <button
@@ -53,20 +53,20 @@ export default function Navbar({
                 : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
             }`}
           >
-            3 Payment Options
+            Consultation Packages
           </button>
         </nav>
 
         {/* User Account / Auth Actions */}
         <div className="flex items-center gap-3">
-          {/* Purchased Items Badge */}
+          {/* Scheduled Consultations Badge */}
           {purchasedCount > 0 && (
             <button
               onClick={() => setActiveTab('dashboard')}
               className="relative p-2.5 rounded-xl bg-[#0E1420] border border-[#A0C4FF]/20 text-[#A0C4FF] hover:bg-[#141C2E] transition-all"
-              title="My Account Dashboard"
+              title="My Consultations Portal"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-[#38BDF8]" />
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#38BDF8] to-[#A0C4FF] text-[#070A0F] text-xs font-bold flex items-center justify-center shadow-md">
                 {purchasedCount}
               </span>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code, GitBranch, Layers, ShieldCheck, Heart, CreditCard, Wallet, Coins } from 'lucide-react';
+import { Code, ShieldCheck, Calendar, Video, UserCheck } from 'lucide-react';
 
 export default function Footer({ onNavigate }) {
   return (
@@ -19,41 +19,41 @@ export default function Footer({ onNavigate }) {
               <span className="font-extrabold text-lg text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
             </div>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
-              Premium website template marketplace featuring 3 payment options, individual sign-in, and instant source code ZIP downloads.
+              Bespoke web strategy, custom architecture, and senior software development consultations.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-3">Marketplace</h4>
+            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-3">Navigation</h4>
             <ul className="space-y-2 text-xs text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('marketplace')} className="hover:text-white transition-colors">Browse Templates</button></li>
-              <li><button onClick={() => onNavigate('pricing')} className="hover:text-white transition-colors">3 Payment Tiers</button></li>
-              <li><button onClick={() => onNavigate('dashboard')} className="hover:text-white transition-colors">Customer Dashboard</button></li>
+              <li><button onClick={() => onNavigate('marketplace')} className="hover:text-white transition-colors">Service Concepts</button></li>
+              <li><button onClick={() => onNavigate('pricing')} className="hover:text-white transition-colors">Consultation Packages</button></li>
+              <li><button onClick={() => onNavigate('dashboard')} className="hover:text-white transition-colors">Client Portal</button></li>
             </ul>
           </div>
 
-          {/* Payment Gateways */}
+          {/* Consultation Formats */}
           <div>
-            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-3">3 Payment Options</h4>
+            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-3">Consultation Formats</h4>
             <ul className="space-y-2 text-xs text-[#94A3B8]">
-              <li className="flex items-center gap-2"><CreditCard className="w-3.5 h-3.5 text-[#38BDF8]" /> <span>Stripe Credit / Debit Card</span></li>
-              <li className="flex items-center gap-2"><Wallet className="w-3.5 h-3.5 text-[#A0C4FF]" /> <span>PayPal & Apple Pay Express</span></li>
-              <li className="flex items-center gap-2"><Coins className="w-3.5 h-3.5 text-[#64DFDF]" /> <span>Crypto USDT / ETH / SOL</span></li>
+              <li className="flex items-center gap-2"><Video className="w-3.5 h-3.5 text-[#38BDF8]" /> <span>1-on-1 Strategy Video Session</span></li>
+              <li className="flex items-center gap-2"><UserCheck className="w-3.5 h-3.5 text-[#A0C4FF]" /> <span>Custom Web Build Scope Call</span></li>
+              <li className="flex items-center gap-2"><ShieldCheck className="w-3.5 h-3.5 text-[#64DFDF]" /> <span>Architecture & Security Audit</span></li>
             </ul>
           </div>
 
           {/* Platform Status */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-1">Status & Support</h4>
+            <h4 className="text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-1">Advisory Status</h4>
             <div className="glass-panel p-3 rounded-xl border border-[#A0C4FF]/15 text-xs text-[#B9D6F2] space-y-1.5">
               <div className="flex items-center justify-between">
-                <span>Code Package Delivery:</span>
-                <span className="text-emerald-400 font-bold text-[10px]">Instant</span>
+                <span>Senior Architect Availability:</span>
+                <span className="text-emerald-400 font-bold text-[10px]">Open Slots</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>License Key Generator:</span>
-                <span className="text-emerald-400 font-bold text-[10px]">Operational</span>
+                <span>Strategy Call Scheduling:</span>
+                <span className="text-emerald-400 font-bold text-[10px]">Active</span>
               </div>
             </div>
           </div>

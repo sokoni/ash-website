@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Wallet, Coins, Lock, CheckCircle2, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function PaymentModal({ item, user, onClose, onSuccessPayment, onRequireAuth }) {
-  const [selectedMethod, setSelectedMethod] = useState('card'); // card, paypal, crypto
+export default function ConsultationModal({ item, user, onClose, onSuccessPayment, onRequireAuth }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Card Form State
-  const [cardName, setCardName] = useState(user?.name || 'Alex Morgan');
-  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
-  const [cardExp, setCardExp] = useState('12/28');
-  const [cardCvc, setCardCvc] = useState('888');
+  // Form State
+  const [selectedDate, setSelectedDate] = useState('Tomorrow (10:00 AM EST)');
+  const [consultTopic, setConsultTopic] = useState(item?.name || '1-on-1 Web Strategy Consultation');
+  const [clientName, setClientName] = useState(user?.name || 'Alex Morgan');
+  const [clientEmail, setClientEmail] = useState(user?.email || 'alex.morgan@dev.io');
+  const [clientPhone, setClientPhone] = useState('(555) 234-5678');
+  const [notes, setNotes] = useState('');
 
-  // Crypto State
-  const [walletConnected, setWalletConnected] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState(null);
 
   if (!item) return null;
 
-  const itemPrice = item.price || 49;
-  const itemName = item.name || 'Website License';
-
-  const handlePaySubmit = (e) => {
+  const handleBookingSubmit = (e) => {
     e.preventDefault();
 
     if (!user) {
@@ -35,6 +32,23 @@ export default function PaymentModal({ item, user, onClose, onSuccessPayment, on
       setIsProcessing(false);
       setIsSuccess(true);
 
+      const meetingId = 'meet-blc-' + Math.random().toString(36).substr(2, 7);
+      const meetUrl = `https://meet.google.com/${meetingId}`;
+
+      const bookingRecord = {
+        id: 'booking_' + Math.random().toString(36).substr(2, 9),
+        websiteId: item.id || 'custom-consultation',
+        websiteName: consultTopic,
+        price: 'Free Consultation',
+        paymentMethod: 'Calendar Booked',
+        licenseKey: 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+        date: selectedDate,
+        meetingUrl: meetUrl,
+        downloadUrl: '#'
+      };
+
+      setBookingDetails(bookingRecord);
+
       // Trigger Celebration Confetti
       try {
         confetti({
@@ -46,32 +60,42 @@ export default function PaymentModal({ item, user, onClose, onSuccessPayment, on
         console.log('Confetti triggered');
       }
 
-      // Record Order in User State
+      // Record in User State
       setTimeout(() => {
-        onSuccessPayment({
-          id: 'ord_' + Math.random().toString(36).substr(2, 9),
-          websiteId: item.id || 'web-custom',
-          websiteName: itemName,
-          price: itemPrice,
-          paymentMethod: selectedMethod,
-          licenseKey: 'WS-LIC-' + Math.random().toString(36).substr(2, 10).toUpperCase(),
-          date: new Date().toLocaleDateString(),
-          downloadUrl: '#'
-        });
+        onSuccessPayment(bookingRecord);
       }, 1500);
 
-    }, 2000);
+    }, 1800);
+  };
+
+  const handleDownloadIcs = () => {
+    const icsData = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BlackLine Creative//Consultation Calendar//EN
+BEGIN:VEVENT
+SUMMARY:Web Strategy Consultation - BlackLine Creative
+DESCRIPTION:1-on-1 Web Strategy and Architecture Consultation session with BlackLine Creative. Meeting Link: ${bookingDetails?.meetingUrl || 'https://meet.google.com'}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+    const element = document.createElement("a");
+    const file = new Blob([icsData], { type: 'text/calendar' });
+    element.href = URL.createObjectURL(file);
+    element.download = "blackline-creative-consultation.ics";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#070A0F]/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-xl bg-[#0E1420] border border-[#A0C4FF]/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-xl bg-[#0E1420] border border-[#A0C4FF]/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header Bar */}
         <div className="px-6 py-4 border-b border-[#A0C4FF]/15 flex items-center justify-between bg-[#070A0F]/90">
           <div className="flex items-center gap-2 text-[#A0C4FF]">
-            <Lock className="w-4 h-4 text-[#38BDF8]" />
-            <span className="font-bold text-white text-sm">256-Bit SSL Checkout</span>
+            <Calendar className="w-4 h-4 text-[#38BDF8]" />
+            <span className="font-bold text-white text-sm">Schedule Strategy Consultation</span>
           </div>
           <button
             onClick={onClose}
@@ -83,210 +107,179 @@ export default function PaymentModal({ item, user, onClose, onSuccessPayment, on
 
         {/* Success View */}
         {isSuccess ? (
-          <div className="p-10 text-center space-y-6">
+          <div className="p-8 text-center space-y-6 overflow-y-auto">
             <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#38BDF8] to-[#A0C4FF] mx-auto flex items-center justify-center p-0.5 shadow-xl shadow-[#38BDF8]/20 animate-bounce">
               <div className="w-full h-full bg-[#070A0F] rounded-full flex items-center justify-center">
                 <CheckCircle2 className="w-10 h-10 text-[#38BDF8]" />
               </div>
             </div>
             <div>
-              <h3 className="text-2xl font-extrabold text-white">Payment Successful!</h3>
+              <h3 className="text-2xl font-extrabold text-white">Consultation Confirmed!</h3>
               <p className="text-sm text-[#94A3B8] mt-2">
-                Your website license for <span className="text-[#A0C4FF] font-semibold">{itemName}</span> has been added to your individual account.
+                Your 1-on-1 strategy call for <span className="text-[#A0C4FF] font-semibold">{consultTopic}</span> is scheduled.
               </p>
             </div>
-            <div className="glass-panel p-4 rounded-xl text-xs text-left space-y-1 font-mono text-[#B9D6F2] border border-[#A0C4FF]/20">
-              <div className="flex justify-between"><span>Status:</span> <span className="text-emerald-400 font-bold">PAID</span></div>
-              <div className="flex justify-between"><span>Payment Method:</span> <span className="uppercase text-white">{selectedMethod}</span></div>
-              <div className="flex justify-between"><span>License Key:</span> <span className="text-[#38BDF8]">WS-LIC-{Math.random().toString(36).substr(2, 6).toUpperCase()}</span></div>
+
+            <div className="glass-panel p-4 rounded-xl text-xs text-left space-y-2 font-mono text-[#B9D6F2] border border-[#A0C4FF]/20">
+              <div className="flex justify-between"><span>Scheduled Time:</span> <span className="text-white font-bold">{selectedDate}</span></div>
+              <div className="flex justify-between"><span>Client:</span> <span className="text-white">{clientName} ({clientEmail})</span></div>
+              <div className="flex justify-between items-center">
+                <span>Video Meeting Link:</span>
+                <a
+                  href={bookingDetails?.meetingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#38BDF8] font-bold underline flex items-center gap-1"
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  <span>Join Meeting</span>
+                </a>
+              </div>
             </div>
-            <div className="text-xs text-[#94A3B8] flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#38BDF8] animate-spin" />
-              <span>Redirecting to your Account Dashboard...</span>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <button
+                onClick={handleDownloadIcs}
+                className="btn-pastel-primary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Add to Calendar (.ics)</span>
+              </button>
+
+              <button
+                onClick={onClose}
+                className="btn-pastel-secondary w-full py-3 rounded-xl text-xs font-bold"
+              >
+                Done
+              </button>
             </div>
           </div>
         ) : (
-          <div className="p-6 space-y-6">
-            
-            {/* Summary Box */}
-            <div className="glass-panel p-4 rounded-2xl border border-[#A0C4FF]/20 flex items-center justify-between bg-[#070A0F]/50">
+          /* Form View */
+          <form onSubmit={handleBookingSubmit} className="p-6 space-y-5 overflow-y-auto">
+            {/* Target Package Banner */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#A0C4FF]/10 to-[#38BDF8]/10 border border-[#A0C4FF]/20 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-[#A0C4FF] uppercase tracking-wider font-semibold">Selected Package</span>
-                <h4 className="font-bold text-white text-base">{itemName}</h4>
-                <p className="text-xs text-[#94A3B8]">Full React 18 Source Code + Deployment Guide</p>
+                <span className="text-[10px] uppercase font-bold text-[#A0C4FF] tracking-wider">Selected Scope / Service</span>
+                <h4 className="text-base font-bold text-white mt-0.5">{consultTopic}</h4>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-extrabold text-white">${itemPrice}</div>
-                <span className="text-[10px] text-emerald-400 font-semibold">One-time payment</span>
-              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                100% Free Consultation
+              </span>
             </div>
 
-            {/* 3 Payment Options Selector */}
-            <div>
-              <label className="block text-xs font-bold text-[#A0C4FF] uppercase tracking-wider mb-3">
-                Choose Payment Option (1 of 3)
+            {/* Step 1: Preferred Date & Time */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#A0C4FF] flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#38BDF8]" />
+                Select Preferred Date & Time Slot
               </label>
-
-              <div className="grid grid-cols-3 gap-2">
-                
-                {/* Option 1: Credit Card */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedMethod('card')}
-                  className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                    selectedMethod === 'card'
-                      ? 'bg-[#A0C4FF]/15 border-[#38BDF8] text-white shadow-md shadow-[#38BDF8]/10'
-                      : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:border-[#A0C4FF]/30'
-                  }`}
-                >
-                  <CreditCard className={`w-5 h-5 ${selectedMethod === 'card' ? 'text-[#38BDF8]' : 'text-[#94A3B8]'}`} />
-                  <div className="mt-2">
-                    <div className="text-xs font-bold">Credit Card</div>
-                    <div className="text-[9px] opacity-75">Stripe 256-Bit</div>
-                  </div>
-                </button>
-
-                {/* Option 2: PayPal / Apple Pay */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedMethod('paypal')}
-                  className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                    selectedMethod === 'paypal'
-                      ? 'bg-[#A0C4FF]/15 border-[#38BDF8] text-white shadow-md shadow-[#38BDF8]/10'
-                      : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:border-[#A0C4FF]/30'
-                  }`}
-                >
-                  <Wallet className={`w-5 h-5 ${selectedMethod === 'paypal' ? 'text-[#A0C4FF]' : 'text-[#94A3B8]'}`} />
-                  <div className="mt-2">
-                    <div className="text-xs font-bold">PayPal / Apple</div>
-                    <div className="text-[9px] opacity-75">1-Click Express</div>
-                  </div>
-                </button>
-
-                {/* Option 3: Crypto */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedMethod('crypto')}
-                  className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                    selectedMethod === 'crypto'
-                      ? 'bg-[#A0C4FF]/15 border-[#38BDF8] text-white shadow-md shadow-[#38BDF8]/10'
-                      : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:border-[#A0C4FF]/30'
-                  }`}
-                >
-                  <Coins className={`w-5 h-5 ${selectedMethod === 'crypto' ? 'text-[#64DFDF]' : 'text-[#94A3B8]'}`} />
-                  <div className="mt-2">
-                    <div className="text-xs font-bold">Crypto USDT</div>
-                    <div className="text-[9px] text-[#64DFDF] font-semibold">5% Off</div>
-                  </div>
-                </button>
-
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[
+                  'Tomorrow (10:00 AM EST)',
+                  'In 2 Days (2:00 PM EST)',
+                  'In 3 Days (4:30 PM EST)'
+                ].map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setSelectedDate(slot)}
+                    className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all ${
+                      selectedDate === slot
+                        ? 'bg-[#38BDF8]/20 border-[#38BDF8] text-white shadow-md'
+                        : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:text-white'
+                    }`}
+                  >
+                    {slot}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Payment Method Forms */}
-            <form onSubmit={handlePaySubmit} className="space-y-4">
-              
-              {selectedMethod === 'card' && (
-                <div className="space-y-3 glass-panel p-4 rounded-xl border border-[#A0C4FF]/15 bg-[#070A0F]">
-                  <div>
-                    <label className="block text-[11px] text-[#94A3B8] mb-1 font-semibold">Cardholder Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#0E1420] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-[#94A3B8] mb-1 font-semibold">Card Number</label>
-                    <input
-                      type="text"
-                      required
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#0E1420] border border-[#A0C4FF]/20 text-white text-xs font-mono focus:outline-none focus:border-[#38BDF8]"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] text-[#94A3B8] mb-1 font-semibold">Expiry Date</label>
-                      <input
-                        type="text"
-                        required
-                        value={cardExp}
-                        onChange={(e) => setCardExp(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-[#0E1420] border border-[#A0C4FF]/20 text-white text-xs font-mono focus:outline-none focus:border-[#38BDF8]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] text-[#94A3B8] mb-1 font-semibold">CVC / CVV</label>
-                      <input
-                        type="text"
-                        required
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-[#0E1420] border border-[#A0C4FF]/20 text-white text-xs font-mono focus:outline-none focus:border-[#38BDF8]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* Step 2: Contact Info Inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-[#94A3B8] flex items-center gap-1">
+                  <User className="w-3 h-3 text-[#A0C4FF]" /> Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
+                  placeholder="Your Name"
+                />
+              </div>
 
-              {selectedMethod === 'paypal' && (
-                <div className="glass-panel p-6 rounded-xl border border-[#A0C4FF]/15 text-center space-y-4 bg-[#070A0F]">
-                  <Wallet className="w-10 h-10 text-[#A0C4FF] mx-auto" />
-                  <p className="text-xs text-[#94A3B8]">
-                    Clicking complete will launch the secure PayPal or Apple Pay checkout window.
-                  </p>
-                  <div className="px-4 py-2 bg-amber-400/10 border border-amber-400/30 rounded-lg text-amber-300 text-xs font-semibold">
-                    1-Click Fast Express Checkout Ready
-                  </div>
-                </div>
-              )}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-[#94A3B8] flex items-center gap-1">
+                  <Mail className="w-3 h-3 text-[#A0C4FF]" /> Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
+                  placeholder="alex@company.com"
+                />
+              </div>
+            </div>
 
-              {selectedMethod === 'crypto' && (
-                <div className="glass-panel p-4 rounded-xl border border-[#64DFDF]/20 space-y-3 bg-[#070A0F]">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#94A3B8]">Accepted Tokens:</span>
-                    <span className="font-mono text-[#64DFDF] font-bold">USDT / ETH / SOL</span>
-                  </div>
-                  <div className="p-3 bg-[#0E1420] rounded-lg border border-[#A0C4FF]/10 font-mono text-[11px] text-[#A0C4FF] break-all">
-                    0x71C7656EC7ab88b098defB751B7401B5f6d8976F
-                  </div>
-                  <div className="text-[10px] text-[#94A3B8] text-center">
-                    Instant automated verification on block confirmation.
-                  </div>
-                </div>
-              )}
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-[#94A3B8] flex items-center gap-1">
+                <Phone className="w-3 h-3 text-[#A0C4FF]" /> Phone / Direct Line
+              </label>
+              <input
+                type="text"
+                value={clientPhone}
+                onChange={(e) => setClientPhone(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
+                placeholder="(555) 000-0000"
+              />
+            </div>
 
-              {/* Submit Button */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-[#94A3B8] flex items-center gap-1">
+                <FileText className="w-3 h-3 text-[#A0C4FF]" /> Project Overview / Goals (Optional)
+              </label>
+              <textarea
+                rows={2}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8] resize-none"
+                placeholder="Briefly describe your vision, timeline, or tech requirements..."
+              />
+            </div>
+
+            {/* Submit Action */}
+            <div className="pt-2 border-t border-[#A0C4FF]/15 space-y-3">
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="btn-pastel-primary w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 mt-4"
+                className="btn-pastel-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 group"
               >
                 {isProcessing ? (
                   <>
-                    <Sparkles className="w-5 h-5 animate-spin" />
-                    <span>Processing Payment Option...</span>
+                    <Sparkles className="w-4 h-4 animate-spin text-[#070A0F]" />
+                    <span>Scheduling Consultation Call...</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4" />
-                    <span>Complete Purchase (${itemPrice})</span>
+                    <Calendar className="w-4 h-4" />
+                    <span>Confirm Free Consultation</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
 
-            </form>
-
-            <div className="text-center text-[11px] text-[#94A3B8] flex items-center justify-center gap-2 pt-2 border-t border-[#A0C4FF]/10">
-              <ShieldCheck className="w-4 h-4 text-[#38BDF8]" />
-              <span>Instant source code access granted immediately upon confirmation.</span>
+              <div className="flex items-center justify-center gap-2 text-[10px] text-[#94A3B8]">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>No credit card required. Free video meeting invite instantly generated.</span>
+              </div>
             </div>
-
-          </div>
+          </form>
         )}
 
       </div>
