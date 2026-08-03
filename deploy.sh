@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# WebSphere Deployment Script for GitHub & Vercel
+# BlackLine Creative Deployment Script for GitHub & Vercel
 # Target Repository: https://github.com/sokoni/ash-website.git
 
 echo "=========================================="
-echo "🚀 WebSphere GitHub & Vercel Deployer"
+echo "🚀 BlackLine Creative GitHub & Vercel Deployer"
 echo "=========================================="
 
 echo "Step 1: Initializing Git and committing project files..."
 git init
 git add .
-git commit -m "Initial release of WebSphere website selling platform"
+git commit -m "Initial release of BlackLine Creative website selling platform"
 git branch -M main
 
 echo "Step 2: Connecting remote repository: https://github.com/sokoni/ash-website.git"

@@ -15,7 +15,7 @@ export default function App() {
 
   // User Session State
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('websphere_user_session');
+    const saved = localStorage.getItem('blackline_user_session');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { return null; }
     }
@@ -31,7 +31,7 @@ export default function App() {
 
   // Purchased Website State
   const [purchases, setPurchases] = useState(() => {
-    const saved = localStorage.getItem('websphere_purchases');
+    const saved = localStorage.getItem('blackline_purchases');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { return []; }
     }
@@ -42,7 +42,7 @@ export default function App() {
         websiteName: 'Nexus SaaS Pro',
         price: 49,
         paymentMethod: 'card',
-        licenseKey: 'WS-LIC-NEXUS-9821X',
+        licenseKey: 'BLC-LIC-NEXUS-9821X',
         date: '2026-07-29',
         downloadUrl: '#'
       }
@@ -58,14 +58,14 @@ export default function App() {
   // Sync to localStorage
   useEffect(() => {
     if (user) {
-      localStorage.setItem('websphere_user_session', JSON.stringify(user));
+      localStorage.setItem('blackline_user_session', JSON.stringify(user));
     } else {
-      localStorage.removeItem('websphere_user_session');
+      localStorage.removeItem('blackline_user_session');
     }
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('websphere_purchases', JSON.stringify(purchases));
+    localStorage.setItem('blackline_purchases', JSON.stringify(purchases));
   }, [purchases]);
 
   const showToast = (msg) => {

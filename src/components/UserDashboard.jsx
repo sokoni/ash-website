@@ -27,7 +27,7 @@ export default function UserDashboard({ user, purchases, onOpenDeploy, onSelectM
     setTimeout(() => {
       const element = document.createElement("a");
       const file = new Blob([
-        `// WebSphere Package Bundle: ${purchasedItem.websiteName}\n// License Key: ${purchasedItem.licenseKey}\n// Date: ${purchasedItem.date}\n\nexport default function App() {\n  return <div>Welcome to your website codebase!</div>;\n}`
+        `// BlackLine Creative Package Bundle: ${purchasedItem.websiteName}\n// License Key: ${purchasedItem.licenseKey}\n// Date: ${purchasedItem.date}\n\nexport default function App() {\n  return <div>Welcome to your website codebase!</div>;\n}`
       ], { type: 'text/plain' });
       element.href = URL.createObjectURL(file);
       element.download = `${purchasedItem.websiteName.toLowerCase().replace(/\s+/g, '-')}-source-code.zip`;

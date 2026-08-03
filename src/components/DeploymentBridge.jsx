@@ -12,7 +12,7 @@ export default function DeploymentBridge() {
   const gitCommands = [
     `git init`,
     `git add .`,
-    `git commit -m "Initial website release from WebSphere"`,
+    `git commit -m "Initial website release from BlackLine Creative"`,
     `git branch -M main`,
     `git remote add origin https://github.com/${githubRepo}.git`,
     `git push -u origin main`
@@ -50,7 +50,7 @@ export default function DeploymentBridge() {
 
     setTimeout(() => {
       setIsDeploying(false);
-      const url = `https://${githubRepo.split('/')[1] || 'websphere-site'}.vercel.app`;
+      const url = `https://${githubRepo.split('/')[1] || 'blackline-site'}.vercel.app`;
       setDeployedUrl(url);
       setDeployLogs(prev => [...prev, `✅ SUCCESS! Site is live at ${url}`]);
     }, 4800);

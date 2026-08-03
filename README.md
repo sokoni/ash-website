@@ -1,6 +1,6 @@
-# WebSphere - Website Marketplace & Sales Platform
+# BlackLine Creative - Website Marketplace & Sales Platform
 
-WebSphere is a modern, high-converting marketplace application for selling ready-to-use website templates and custom web builds.
+BlackLine Creative is a modern, high-converting marketplace application for selling ready-to-use website templates and custom web builds.
 
 ## 🎨 Color Palette & Aesthetics
 - **Theme**: Pastel Blue & Obsidian Black
@@ -30,7 +30,7 @@ To push this codebase to your GitHub account and deploy live to Vercel:
    ```bash
    git init
    git add .
-   git commit -m "Initial WebSphere launch"
+   git commit -m "Initial BlackLine Creative launch"
    git branch -M main
    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
    git push -u origin main

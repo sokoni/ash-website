@@ -129,7 +129,7 @@ export default function LivePreviewModal({ template, onClose, onBuyNow }) {
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
                 </div>
                 <div className="px-6 py-1 rounded-md bg-[#0E1420] border border-[#A0C4FF]/10 text-[11px] text-[#A0C4FF] font-mono truncate max-w-xs">
-                  https://preview.websphere.dev/{template.id}
+                  https://preview.blacklinecreative.dev/{template.id}
                 </div>
                 <div className="text-[10px] text-[#38BDF8] font-bold">100% Live Mock</div>
               </div>

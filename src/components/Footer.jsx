@@ -16,7 +16,7 @@ export default function Footer({ onNavigate }) {
                   <Code className="w-4 h-4 text-[#A0C4FF]" />
                 </div>
               </div>
-              <span className="font-extrabold text-lg text-white">Web<span className="pastel-glow-text">Sphere</span></span>
+              <span className="font-extrabold text-lg text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
             </div>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
               Premium website template marketplace featuring 3 payment options, individual sign-in, and automated GitHub/Vercel integrations.
@@ -64,7 +64,7 @@ export default function Footer({ onNavigate }) {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[#A0C4FF]/10 flex flex-col sm:flex-row items-center justify-between text-xs text-[#94A3B8] gap-4">
           <div>
-            © {new Date().getFullYear()} WebSphere Inc. All rights reserved. Styled in Pastel Blue & Obsidian Black.
+            © {new Date().getFullYear()} BlackLine Creative Inc. All rights reserved. Styled in Pastel Blue & Obsidian Black.
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-[#38BDF8]" /> SSL Protected</span>
