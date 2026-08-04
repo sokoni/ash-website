@@ -1,6 +1,8 @@
+import * as Sentry from '@sentry/react';
+
 /**
  * Client-Side Production Structured Logger & Error Monitoring Hook
- * Prepared for Sentry and LogRocket Integration
+ * Connected to @sentry/react
  */
 
 const SENSITIVE_FIELDS = new Set(['password', 'token', 'secret', 'code', 'creditcard', 'ssn']);
@@ -31,16 +33,9 @@ export const logger = {
     const maskedDetails = maskClientData(details);
     console.error(`[ERROR] ${message}`, error?.message || error || '', maskedDetails);
 
-    // Sentry / LogRocket Production Integration Hook
-    if (window.Sentry) {
+    if (import.meta.env.VITE_SENTRY_DSN) {
       try {
-        window.Sentry.captureException(error || new Error(message), { extra: maskedDetails });
-      } catch {}
-    }
-
-    if (window.LogRocket) {
-      try {
-        window.LogRocket.captureException(error || new Error(message));
+        Sentry.captureException(error || new Error(message), { extra: maskedDetails });
       } catch {}
     }
   }

@@ -58,19 +58,34 @@ export function maskSensitiveData(data) {
   return masked;
 }
 
-// Sentry & External Logger Forwarding Hook (e.g. Sentry DSN, LogRocket)
+import * as Sentry from '@sentry/node';
+
+// Initialize Node Sentry SDK if SENTRY_DSN is configured
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'production',
+    tracesSampleRate: 1.0,
+    beforeSend(event) {
+      if (event.request && event.request.headers) {
+        delete event.request.headers['authorization'];
+        delete event.request.headers['cookie'];
+        delete event.request.headers['set-cookie'];
+      }
+      return event;
+    }
+  });
+}
+
+// Sentry & External Logger Forwarding Hook
 function forwardToMonitoringService(logEntry) {
-  const sentryDsn = process.env.SENTRY_DSN;
-  const logRocketAppId = process.env.LOGROCKET_APP_ID;
-
-  if (sentryDsn && (logEntry.level === 'ERROR' || logEntry.level === 'CRITICAL')) {
-    // Placeholder hook for Sentry SDK transmission
-    // Sentry.captureException(new Error(logEntry.message), { extra: logEntry });
-  }
-
-  if (logRocketAppId) {
-    // Placeholder hook for LogRocket session logging
-    // LogRocket.log(logEntry.category, logEntry);
+  if (process.env.SENTRY_DSN && (logEntry.level === 'ERROR' || logEntry.level === 'CRITICAL')) {
+    try {
+      Sentry.captureException(new Error(logEntry.message), {
+        extra: logEntry.details,
+        tags: { category: logEntry.category, clientIp: logEntry.clientIp }
+      });
+    } catch {}
   }
 }
 
