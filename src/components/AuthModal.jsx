@@ -122,8 +122,8 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
       setIsLoading(false);
       const userProfile = {
         id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: name || (email ? email.split('@')[0] : 'Individual Customer'),
-        email: email || 'alex.morgan@dev.io',
+        name: name || (email ? email.split('@')[0] : 'Client Account'),
+        email: email || 'client@example.com',
         role: 'Customer Account',
         twoFactorEnabled: true,
         twoFactorMethod: '6-Digit Security OTP',

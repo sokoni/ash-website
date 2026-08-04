@@ -18,14 +18,7 @@ export default function App() {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { return null; }
     }
-    // Default Demo Account initialized for convenient testing
-    return {
-      id: 'usr_individual_101',
-      name: 'Alex Morgan',
-      email: 'alex.morgan@dev.io',
-      role: 'Individual Developer Account',
-      createdAt: '2026-07-28'
-    };
+    return null;
   });
 
   // Purchased / Scheduled Consultations State
@@ -34,19 +27,7 @@ export default function App() {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { return []; }
     }
-    return [
-      {
-        id: 'booking_demo_1',
-        websiteId: 'web-nexus-saas',
-        websiteName: 'Nexus SaaS Strategy Session',
-        price: 'Free Consultation',
-        paymentMethod: 'Calendar Booked',
-        licenseKey: 'CONF-BLC-NEXUS98',
-        date: 'Tomorrow (10:00 AM EST)',
-        meetingUrl: 'https://meet.google.com/meet-blc-nexus',
-        downloadUrl: '#'
-      }
-    ];
+    return [];
   });
 
   // Modal Controls

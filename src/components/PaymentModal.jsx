@@ -8,10 +8,10 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
 
   // Form State
   const [selectedDate, setSelectedDate] = useState('Tomorrow (10:00 AM EST)');
-  const [consultTopic, setConsultTopic] = useState(item?.name || '1-on-1 Web Strategy Consultation');
-  const [clientName, setClientName] = useState(user?.name || 'Alex Morgan');
-  const [clientEmail, setClientEmail] = useState(user?.email || 'alex.morgan@dev.io');
-  const [clientPhone, setClientPhone] = useState('(555) 234-5678');
+  const [consultTopic] = useState(item?.name || '1-on-1 Web Strategy Consultation');
+  const [clientName, setClientName] = useState(user?.name || '');
+  const [clientEmail, setClientEmail] = useState(user?.email || '');
+  const [clientPhone, setClientPhone] = useState('');
   const [notes, setNotes] = useState('');
 
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -21,7 +21,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
   const handleBookingSubmit = (e) => {
     e.preventDefault();
 
-    if (!user) {
+    if (!user && onRequireAuth && (!clientName || !clientEmail)) {
       onRequireAuth();
       return;
     }
