@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, User, Mail, Lock, Sparkles, CheckCircle2, Shield, ArrowRight, ShieldCheck, RefreshCw, KeyRound } from 'lucide-react';
+import { apiRegisterUser, apiLoginUser } from '../api';
 
 export default function AuthModal({ initialMode = 'signin', onClose, onLoginSuccess }) {
   const [mode, setMode] = useState(initialMode); // 'signin' or 'signup'
@@ -118,19 +119,27 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     setIsLoading(true);
     setOtpError('');
 
-    setTimeout(() => {
+    const targetEmail = email || 'client@example.com';
+    const targetName = name || targetEmail.split('@')[0];
+
+    (mode === 'signup' 
+      ? apiRegisterUser(targetName, targetEmail, password)
+      : apiLoginUser(targetEmail)
+    ).then((userProfile) => {
       setIsLoading(false);
-      const userProfile = {
+      onLoginSuccess(userProfile);
+    }).catch(() => {
+      setIsLoading(false);
+      onLoginSuccess({
         id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: name || (email ? email.split('@')[0] : 'Client Account'),
-        email: email || 'client@example.com',
-        role: 'Customer Account',
+        name: targetName,
+        email: targetEmail,
+        role: 'Client Account',
         twoFactorEnabled: true,
         twoFactorMethod: '6-Digit Security OTP',
         createdAt: new Date().toLocaleDateString()
-      };
-      onLoginSuccess(userProfile);
-    }, 1200);
+      });
+    });
   };
 
   return (

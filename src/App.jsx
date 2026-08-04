@@ -8,6 +8,7 @@ import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
 import Footer from './components/Footer';
+import { apiGetConsultations } from './api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, dashboard
@@ -36,7 +37,18 @@ export default function App() {
   const [authModalState, setAuthModalState] = useState({ isOpen: false, mode: 'signin' });
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Sync to localStorage
+  // Fetch Consultations from Docker API container when user signs in
+  useEffect(() => {
+    if (user?.email) {
+      apiGetConsultations(user.email).then(containerConsultations => {
+        if (containerConsultations && containerConsultations.length > 0) {
+          setPurchases(containerConsultations);
+        }
+      });
+    }
+  }, [user]);
+
+  // Sync to localStorage as client fallback
   useEffect(() => {
     if (user) {
       localStorage.setItem('blackline_user_session', JSON.stringify(user));

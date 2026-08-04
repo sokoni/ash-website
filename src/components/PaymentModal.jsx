@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { apiSaveConsultation } from '../api';
 
 export default function ConsultationModal({ item, user, onClose, onSuccessPayment, onRequireAuth }) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -47,6 +48,11 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       notes: notes,
       downloadUrl: '#'
     };
+
+    // Save to Docker Container Backend API
+    apiSaveConsultation(bookingRecord).catch(err => {
+      console.log('API save error, fallback active:', err);
+    });
 
     // Send Appointment Information to babbztest@gmail.com via FormSubmit AJAX endpoint
     fetch('https://formsubmit.co/ajax/babbztest@gmail.com', {
