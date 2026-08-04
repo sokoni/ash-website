@@ -30,7 +30,7 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
             Explore Service Concepts & Designs
           </h2>
           <p className="text-[#94A3B8] text-sm mt-1">
-            Preview any design framework and book a 1-on-1 strategy consultation to build your custom application.
+            Preview custom frameworks engineered with elite <strong>Website Design</strong>, <strong>Website Development</strong>, and <strong>Technical SEO</strong> principles, then schedule a consultation to launch your platform.
           </p>
         </div>
 

@@ -56,8 +56,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
                 <Video className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">1-on-1 Video Call</div>
-                <div className="text-xs text-[#94A3B8]">30-Min Strategy Session</div>
+                <div className="text-sm font-bold text-white">Brand Strategy</div>
+                <div className="text-xs text-[#94A3B8]">Positioning & Design</div>
               </div>
             </div>
 
@@ -66,8 +66,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
                 <UserCheck className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">Senior Lead</div>
-                <div className="text-xs text-[#94A3B8]">Direct Architect Access</div>
+                <div className="text-sm font-bold text-white">Web Development</div>
+                <div className="text-xs text-[#94A3B8]">High-Velocity Platforms</div>
               </div>
             </div>
 
@@ -76,8 +76,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
                 <Zap className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">Custom Roadmap</div>
-                <div className="text-xs text-[#94A3B8]">Tailored Tech Scope</div>
+                <div className="text-sm font-bold text-white">Technical & Local SEO</div>
+                <div className="text-xs text-[#94A3B8]">AI Search Optimization</div>
               </div>
             </div>
 
@@ -86,8 +86,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-white">Zero Obligation</div>
-                <div className="text-xs text-[#94A3B8]">100% Free Consultation</div>
+                <div className="text-sm font-bold text-white">Lead Generation</div>
+                <div className="text-xs text-[#94A3B8]">Automation & Analytics</div>
               </div>
             </div>
           </div>

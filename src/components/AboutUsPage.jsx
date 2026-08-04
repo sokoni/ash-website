@@ -71,7 +71,7 @@ export default function AboutUsPage({ onBookConsultation }) {
               BlackLine Creative exists to change that.
             </p>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
-              We help businesses create digital foundations that support long-term growth through strategy, branding, websites, search optimization, and measurable marketing systems.
+              We help businesses create digital foundations that support long-term growth through <strong>Brand Strategy</strong>, <strong>Website Design</strong>, <strong>Website Development</strong>, <strong>SEO</strong> (including <strong>Technical SEO</strong> and <strong>Local SEO</strong>), <strong>AI Search Optimization</strong>, data <strong>Analytics</strong>, <strong>Marketing Automation</strong>, and high-converting <strong>Lead Generation</strong> systems.
             </p>
             <div className="p-3.5 rounded-xl bg-[#A0C4FF]/10 border border-[#A0C4FF]/20 space-y-1">
               <p className="text-xs font-semibold text-[#A0C4FF]">We don't just build websites.</p>
