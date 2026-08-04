@@ -60,26 +60,25 @@ export function maskSensitiveData(data) {
 
 import * as Sentry from '@sentry/node';
 
-// Initialize Node Sentry SDK if SENTRY_DSN is configured
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'production',
-    tracesSampleRate: 1.0,
-    beforeSend(event) {
-      if (event.request && event.request.headers) {
-        delete event.request.headers['authorization'];
-        delete event.request.headers['cookie'];
-        delete event.request.headers['set-cookie'];
-      }
-      return event;
+const SENTRY_DSN = process.env.SENTRY_DSN || "https://c5f2c1e7c8a3d00e29566049fa41f565@o4511854586036224.ingest.us.sentry.io/4511854592000000";
+
+Sentry.init({
+  dsn: SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'production',
+  tracesSampleRate: 1.0,
+  beforeSend(event) {
+    if (event.request && event.request.headers) {
+      delete event.request.headers['authorization'];
+      delete event.request.headers['cookie'];
+      delete event.request.headers['set-cookie'];
     }
-  });
-}
+    return event;
+  }
+});
 
 // Sentry & External Logger Forwarding Hook
 function forwardToMonitoringService(logEntry) {
-  if (process.env.SENTRY_DSN && (logEntry.level === 'ERROR' || logEntry.level === 'CRITICAL')) {
+  if (logEntry.level === 'ERROR' || logEntry.level === 'CRITICAL') {
     try {
       Sentry.captureException(new Error(logEntry.message), {
         extra: logEntry.details,
