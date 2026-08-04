@@ -15,7 +15,7 @@ export default function Navbar({
     { id: 'marketplace', label: 'Home' },
     { id: 'theory', label: 'BlackLine Theory' },
     { id: 'services', label: 'Services' },
-    { id: 'projects', label: 'Projects' },
+    // { id: 'projects', label: 'Projects' }, // Commented out
     { id: 'about', label: 'About Us' },
     { id: 'pricing', label: 'Packages' }
   ];

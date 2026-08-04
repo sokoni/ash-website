@@ -149,12 +149,12 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'projects' && (
+        {/* {activeTab === 'projects' && (
           <ProjectsPage
             onPreview={(project) => setPreviewTemplate(project)}
             onBookConsultation={(target) => setBuyTarget(target)}
           />
-        )}
+        )} */}
 
         {activeTab === 'about' && (
           <AboutUsPage
