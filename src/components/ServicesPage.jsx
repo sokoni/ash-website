@@ -1,59 +1,93 @@
 import React from 'react';
-import { Sparkles, Code, Server, Layout, ShieldCheck, ArrowRight, CheckCircle2, Cpu, Wrench } from 'lucide-react';
+import { Sparkles, Code, Target, Search, BarChart3, Zap, ArrowRight, CheckCircle2, Wrench, Palette } from 'lucide-react';
 
 export default function ServicesPage({ onBookConsultation }) {
   const services = [
     {
-      id: 'custom-web-app',
-      title: 'Custom Web Application Development',
-      badge: 'Full-Stack Engineering',
-      description: 'Bespoke React & Vite web applications tailored with dynamic glassmorphism UI, custom REST APIs, state persistence, and responsive interactive workflows.',
+      id: 'brand-strategy',
+      title: 'Brand Strategy',
+      badge: 'Strategy & Growth',
+      description: 'Guiding brand trajectory with deep audience insights, positioning models, and go-to-market strategies.',
       features: [
-        'Single Page Applications (SPA) & Next.js/Vite',
-        'Custom Tailwind & Vanilla CSS Design Systems',
-        'State persistence & client session management',
-        'Responsive mobile-first layout optimization'
+        'Positioning',
+        'Messaging',
+        'Audience Research',
+        'Customer Journey',
+        'Competitive Analysis',
+        'Go-to-Market Strategy'
+      ],
+      icon: Target
+    },
+    {
+      id: 'web-design-dev',
+      title: 'Website Design & Development',
+      badge: 'Digital Experiences',
+      description: 'Building high-velocity web platforms, custom landing pages, and scalable ecommerce systems.',
+      features: [
+        'Website Design',
+        'Website Development',
+        'Landing Pages',
+        'Ecommerce',
+        'WordPress',
+        'Creative Direction'
       ],
       icon: Code
     },
     {
-      id: 'docker-backend',
-      title: 'Docker Containerized Backend Infrastructure',
-      badge: 'DevOps & Storage',
-      description: 'Containerized Node.js REST API servers with persistent volume storage for user sign-in authentication, database management, and automated email notifications.',
+      id: 'brand-identity',
+      title: 'Brand Identity',
+      badge: 'Visual & Voice',
+      description: 'Creating distinctive logo marks, visual design systems, and compelling brand messaging.',
       features: [
-        'Docker & Docker Compose containerization',
-        'Node.js & Express REST API architecture',
-        'Persistent database volume volume mapping',
-        'Secure multi-tier authentication endpoints'
+        'Logo Design',
+        'Visual Identity',
+        'Brand Messaging',
+        'Creative Direction'
       ],
-      icon: Server
+      icon: Palette
     },
     {
-      id: 'strategy-audit',
-      title: '1-on-1 Strategy Consultation & Audits',
-      badge: 'Executive Advisory',
-      description: 'Direct video strategy sessions to plan product roadmap, system architecture, UX conversion funnels, and technical execution blueprints.',
+      id: 'search-optimization',
+      title: 'Search Optimization',
+      badge: 'Search & Discovery',
+      description: 'Ensuring your brand is easily discoverable across traditional search engines and AI search platforms.',
       features: [
-        'Live system architecture & codebase review',
-        'UX conversion funnel optimization',
-        'Google Meet video consultation call',
-        'Calendar event & .ics export integration'
+        'SEO',
+        'Technical SEO',
+        'Local SEO',
+        'AEO',
+        'GEO',
+        'Schema Markup',
+        'Content Strategy'
       ],
-      icon: Cpu
+      icon: Search
     },
     {
-      id: 'design-system',
-      title: 'UI/UX Design Systems & Micro-Animations',
-      badge: 'Aesthetics & Motion',
-      description: 'Premium UI component libraries featuring curated HSL color schemes, sleek dark mode aesthetics, interactive hover animations, and micro-interactions.',
+      id: 'analytics-performance',
+      title: 'Analytics & Performance',
+      badge: 'Data & Metrics',
+      description: 'Measuring user behavior, optimizing conversions, and maintaining actionable marketing roadmaps.',
       features: [
-        'Curated dark mode & glassmorphism palettes',
-        'Canvas confetti & celebratory micro-interactions',
-        'Accessible, semantic HTML5 structure',
-        'Frictionless user flow wireframing'
+        'Google Analytics 4',
+        'Conversion Optimization',
+        'Reporting',
+        'Performance Reviews',
+        'Marketing Roadmaps'
       ],
-      icon: Layout
+      icon: BarChart3
+    },
+    {
+      id: 'marketing-automation',
+      title: 'Marketing Automation',
+      badge: 'AI & Automation',
+      description: 'Leveraging automated lead capture, targeted email flows, and AI-driven search optimizations.',
+      features: [
+        'AI Search Optimization',
+        'Email Marketing',
+        'Marketing Automation',
+        'Lead Generation'
+      ],
+      icon: Zap
     }
   ];
 
