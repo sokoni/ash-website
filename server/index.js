@@ -95,8 +95,30 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'BlackLine Creative Container API is running' });
 });
 
+// IP Rate Limiter Map for API Hardening
+const ipRateLimitMap = new Map();
+
+function isRateLimited(ip, maxRequests = 10, windowMs = 600000) { // 10 requests per 10 mins
+  const now = Date.now();
+  const userLogs = ipRateLimitMap.get(ip) || [];
+  const recentLogs = userLogs.filter(timestamp => now - timestamp < windowMs);
+  
+  if (recentLogs.length >= maxRequests) {
+    return true;
+  }
+  
+  recentLogs.push(now);
+  ipRateLimitMap.set(ip, recentLogs);
+  return false;
+}
+
 // User Registration Endpoint
 app.post('/api/auth/register', (req, res) => {
+  const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+  if (isRateLimited(clientIp, 15, 600000)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+
   const cleanEmail = sanitizeEmail(req.body.email);
   const cleanName = sanitizeInput(req.body.name);
 
@@ -208,18 +230,28 @@ app.get('/api/consultations', (req, res) => {
   res.json({ consultations: filtered });
 });
 
-// Save New Consultation Endpoint
+// Save New Consultation Endpoint with Rate Limiting & Anti-Spam
 app.post('/api/consultations', (req, res) => {
+  const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+  if (isRateLimited(clientIp, 5, 600000)) { // 5 bookings per 10 mins
+    return res.status(429).json({ error: 'Too many consultation requests. Please try again later.' });
+  }
+
   const booking = req.body;
   if (!booking || !booking.websiteName) {
     return res.status(400).json({ error: 'Invalid booking details' });
   }
 
+  // Honeypot Server Check
+  if (booking.website_hp) {
+    return res.status(400).json({ error: 'Invalid submission parameters' });
+  }
+
   const cleanEmail = sanitizeEmail(booking.clientEmail) || 'client@example.com';
-  const cleanName = sanitizeInput(booking.clientName) || 'Client';
-  const cleanPhone = sanitizeInput(booking.clientPhone) || 'N/A';
-  const cleanNotes = sanitizeInput(booking.notes) || 'No notes';
-  const cleanWebsiteName = sanitizeInput(booking.websiteName);
+  const cleanName = sanitizeInput(booking.clientName).slice(0, 75) || 'Client';
+  const cleanPhone = sanitizeInput(booking.clientPhone).slice(0, 25) || 'N/A';
+  const cleanNotes = sanitizeInput(booking.notes).slice(0, 1000) || 'No notes';
+  const cleanWebsiteName = sanitizeInput(booking.websiteName).slice(0, 100);
 
   const db = loadDatabase();
   const bookingRecord = {
@@ -274,9 +306,15 @@ app.post('/api/consultations', (req, res) => {
       booking_id: bookingRecord.licenseKey,
       notes: bookingRecord.notes
     })
-  }).catch(err => console.log('Container email dispatch notification:', err));
+  }).catch(() => {});
 
   res.status(201).json({ status: 'success', booking: bookingRecord });
+});
+
+// Generic Express Error Handler (hides internal stack traces & details)
+app.use((err, req, res, _next) => {
+  console.error('API Container Error:', err.message);
+  res.status(500).json({ error: 'An unexpected request error occurred. Please try again.' });
 });
 
 app.listen(PORT, () => {

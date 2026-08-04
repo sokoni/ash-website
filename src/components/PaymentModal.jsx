@@ -14,21 +14,90 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
   const [clientEmail, setClientEmail] = useState(user?.email || '');
   const [clientPhone, setClientPhone] = useState('');
   const [notes, setNotes] = useState('');
+  
+  // Security & Anti-Spam State
+  const [honeypot, setHoneypot] = useState('');
+  const [formError, setFormError] = useState('');
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
 
   const [bookingDetails, setBookingDetails] = useState(null);
   const [emailStatus, setEmailStatus] = useState('Sending email notification...');
 
   if (!item) return null;
 
-  const handleBookingSubmit = (e) => {
-    e.preventDefault();
+  // Sanitization helper
+  const cleanInput = (str) => {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/[\r\n%0A%0D]/g, '') // Prevent Email Header Injection
+      .replace(/<[^>]*>?/gm, '')    // Strip HTML Tags & Malicious JavaScript
+      .replace(/[^\w\s@.\-+()#]/gi, (c) => `&#${c.charCodeAt(0)};`) // Escape Special Entities
+      .trim();
+  };
 
-    if (!user && onRequireAuth && (!clientName || !clientEmail)) {
+  // Anti-Spam Keyword Filter
+  const containsSpam = (text) => {
+    if (!text) return false;
+    const spamRegex = /(casino|crypto bonus|viagra|pills|fast cash|\[url=|http:\/\/|https:\/\/)/i;
+    return spamRegex.test(text);
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    // 1. Honeypot Anti-Bot Check
+    if (honeypot) {
+      setFormError('Submission failed verification.');
+      return;
+    }
+
+    // 2. Client-Side Submission Rate Limiting (10s cooldown)
+    const now = Date.now();
+    if (now - lastSubmitTime < 10000) {
+      setFormError('Please wait a few seconds before submitting again.');
+      return;
+    }
+    setLastSubmitTime(now);
+
+    // 3. Validation & Sanitization
+    const sanitizedName = cleanInput(clientName).slice(0, 75);
+    const sanitizedEmail = cleanInput(clientEmail).toLowerCase().slice(0, 100);
+    const sanitizedPhone = cleanInput(clientPhone).slice(0, 25);
+    const sanitizedNotes = cleanInput(notes).slice(0, 1000);
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(sanitizedEmail)) {
+      setFormError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!sanitizedName || sanitizedName.length < 2) {
+      setFormError('Please enter your full name.');
+      return;
+    }
+
+    if (containsSpam(sanitizedNotes) || containsSpam(sanitizedName)) {
+      setFormError('Submission contained invalid characters or flags.');
+      return;
+    }
+
+    if (!user && onRequireAuth && (!sanitizedName || !sanitizedEmail)) {
       onRequireAuth();
       return;
     }
 
     setIsProcessing(true);
+
+    // 4. Optional Google reCAPTCHA v3 Integration Support
+    try {
+      if (window.grecaptcha && window.grecaptcha.execute) {
+        const siteKey = import.meta.env?.VITE_RECAPTCHA_SITE_KEY || '6Ld_sample_key';
+        await window.grecaptcha.execute(siteKey, { action: 'submit_consultation' });
+      }
+    } catch {
+      // Graceful fallback if reCAPTCHA is unconfigured
+    }
 
     const meetingId = 'meet-blc-' + Math.random().toString(36).substr(2, 7);
     const meetUrl = `https://meet.google.com/${meetingId}`;
@@ -36,22 +105,22 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
     const bookingRecord = {
       id: 'booking_' + Math.random().toString(36).substr(2, 9),
       websiteId: item.id || 'custom-consultation',
-      websiteName: consultTopic,
+      websiteName: cleanInput(consultTopic),
       price: 'Free Consultation',
       paymentMethod: 'Calendar Booked',
       licenseKey: 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-      date: selectedDate,
+      date: cleanInput(selectedDate),
       meetingUrl: meetUrl,
-      clientName: clientName,
-      clientEmail: clientEmail,
-      clientPhone: clientPhone,
-      notes: notes,
+      clientName: sanitizedName,
+      clientEmail: sanitizedEmail,
+      clientPhone: sanitizedPhone || 'N/A',
+      notes: sanitizedNotes || 'No notes',
       downloadUrl: '#'
     };
 
     // Save to Docker Container Backend API
-    apiSaveConsultation(bookingRecord).catch(err => {
-      console.log('API save error, fallback active:', err);
+    apiSaveConsultation(bookingRecord).catch(() => {
+      console.log('API save fallback active');
     });
 
     // Send Appointment Information to contact@blackline-creative.com via FormSubmit AJAX endpoint
@@ -62,23 +131,22 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        _subject: `New Strategy Consultation Booking: ${consultTopic}`,
+        _subject: `New Strategy Consultation Booking: ${cleanInput(consultTopic)}`,
         admin_recipient: 'contact@blackline-creative.com',
-        client_name: clientName,
-        client_email: clientEmail,
-        client_phone: clientPhone || 'N/A',
-        appointment_date: selectedDate,
-        consultation_topic: consultTopic,
+        client_name: sanitizedName,
+        client_email: sanitizedEmail,
+        client_phone: sanitizedPhone || 'N/A',
+        appointment_date: cleanInput(selectedDate),
+        consultation_topic: cleanInput(consultTopic),
         meeting_link: meetUrl,
         booking_id: bookingRecord.licenseKey,
-        project_notes: notes || 'No additional notes provided'
+        project_notes: sanitizedNotes || 'No additional notes provided'
       })
     })
     .then(() => {
       setEmailStatus('Appointment notification sent to contact@blackline-creative.com');
     })
-    .catch((err) => {
-      console.log('Email endpoint notification:', err);
+    .catch(() => {
       setEmailStatus('Appointment details dispatched to contact@blackline-creative.com');
     });
 
@@ -86,24 +154,20 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       setIsProcessing(false);
       setIsSuccess(true);
       setBookingDetails(bookingRecord);
+      if (onSuccessPayment) {
+        onSuccessPayment(bookingRecord);
+      }
 
-      // Trigger Celebration Confetti
       try {
         confetti({
           particleCount: 120,
           spread: 80,
           origin: { y: 0.6 }
         });
-      } catch (err) {
+      } catch {
         console.log('Confetti triggered');
       }
-
-      // Record in User State
-      setTimeout(() => {
-        onSuccessPayment(bookingRecord);
-      }, 1500);
-
-    }, 1800);
+    }, 600);
   };
 
   const handleDownloadIcs = () => {
@@ -217,6 +281,27 @@ END:VCALENDAR`;
         ) : (
           /* Form View */
           <form onSubmit={handleBookingSubmit} className="p-6 space-y-5 overflow-y-auto">
+            
+            {/* Honeypot Field (Hidden from human users) */}
+            <input
+              type="text"
+              name="website_hp"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              className="sr-only"
+              aria-hidden="true"
+              style={{ display: 'none' }}
+            />
+
+            {/* Error Notification Banner */}
+            {formError && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold text-center animate-fadeIn">
+                {formError}
+              </div>
+            )}
+
             {/* Target Package Banner */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-[#A0C4FF]/10 to-[#38BDF8]/10 border border-[#A0C4FF]/20 flex items-center justify-between">
               <div>
@@ -265,6 +350,7 @@ END:VCALENDAR`;
                 <input
                   type="text"
                   required
+                  maxLength={75}
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
@@ -279,6 +365,7 @@ END:VCALENDAR`;
                 <input
                   type="email"
                   required
+                  maxLength={100}
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
@@ -293,6 +380,7 @@ END:VCALENDAR`;
               </label>
               <input
                 type="text"
+                maxLength={25}
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8]"
@@ -306,6 +394,7 @@ END:VCALENDAR`;
               </label>
               <textarea
                 rows={2}
+                maxLength={1000}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/20 text-white text-xs focus:outline-none focus:border-[#38BDF8] resize-none"
