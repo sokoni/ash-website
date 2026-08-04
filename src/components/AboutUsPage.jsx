@@ -5,8 +5,8 @@ export default function AboutUsPage({ onBookConsultation }) {
   const stats = [
     { label: 'Client Satisfaction', value: '100%' },
     { label: 'Average Core Web Vital', value: '99/100' },
-    { label: 'Docker Container Backend', value: 'Port 5001' },
-    { label: 'Strategy Calls Delivered', value: '150+' }
+    { label: 'Brand Growth Systems', value: '100%' },
+    { label: 'Strategy Consultations', value: '150+' }
   ];
 
   return (
