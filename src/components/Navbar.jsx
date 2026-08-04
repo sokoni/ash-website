@@ -26,7 +26,6 @@ export default function Navbar({
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-xl tracking-tight text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#A0C4FF]/10 text-[#A0C4FF] border border-[#A0C4FF]/30">v2.4</span>
             </div>
             <span className="text-[11px] text-[#94A3B8] font-medium tracking-wide">Web Strategy & Custom Design Agency</span>
           </div>
