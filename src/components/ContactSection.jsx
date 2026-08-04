@@ -3,7 +3,7 @@ import { Sparkles, ArrowRight, MessageSquare, ShieldCheck } from 'lucide-react';
 
 export default function ContactSection({ onBookConsultation }) {
   return (
-    <section id="contact" className="py-16 max-w-5xl mx-auto px-4">
+    <section id="contact" className="py-16 w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12">
       <div className="glass-panel p-8 sm:p-12 rounded-3xl border border-[#9E9E9E]/25 bg-gradient-to-br from-[#18181C] via-[#222228] to-[#0F0F0F] text-center space-y-6 relative overflow-hidden shadow-2xl shadow-[#FF2ED4]/10">
         
         {/* Palette Badge */}

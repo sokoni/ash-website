@@ -118,7 +118,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4">
+      <main className="flex-1 w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12">
 
         {activeTab === 'marketplace' && (
           <>

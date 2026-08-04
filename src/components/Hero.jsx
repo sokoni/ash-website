@@ -8,7 +8,7 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
       <div className="bg-orb-blue w-[500px] h-[500px] bg-[#FF2ED4]/15 -top-32 -left-32 animate-pulse-glow" />
       <div className="bg-orb-blue w-[600px] h-[600px] bg-[#30BBFF]/15 top-10 right-0 animate-pulse-glow" style={{ animationDelay: '2s' }} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 relative z-10">
         <div className="text-center max-w-4xl mx-auto space-y-6">
           
           {/* Palette Pill Badge */}
