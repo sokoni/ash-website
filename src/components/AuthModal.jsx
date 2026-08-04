@@ -57,7 +57,7 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     });
 
     // Send admin notification copy
-    fetch('https://formsubmit.co/ajax/babbztest@gmail.com', {
+    fetch('https://formsubmit.co/ajax/contact@blackline-creative.com', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

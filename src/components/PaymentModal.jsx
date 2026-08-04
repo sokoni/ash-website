@@ -54,8 +54,8 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       console.log('API save error, fallback active:', err);
     });
 
-    // Send Appointment Information to babbztest@gmail.com via FormSubmit AJAX endpoint
-    fetch('https://formsubmit.co/ajax/babbztest@gmail.com', {
+    // Send Appointment Information to contact@blackline-creative.com via FormSubmit AJAX endpoint
+    fetch('https://formsubmit.co/ajax/contact@blackline-creative.com', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       },
       body: JSON.stringify({
         _subject: `New Strategy Consultation Booking: ${consultTopic}`,
-        admin_recipient: 'babbztest@gmail.com',
+        admin_recipient: 'contact@blackline-creative.com',
         client_name: clientName,
         client_email: clientEmail,
         client_phone: clientPhone || 'N/A',
@@ -75,11 +75,11 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       })
     })
     .then(() => {
-      setEmailStatus('Appointment notification sent to babbztest@gmail.com');
+      setEmailStatus('Appointment notification sent to contact@blackline-creative.com');
     })
     .catch((err) => {
       console.log('Email endpoint notification:', err);
-      setEmailStatus('Appointment details dispatched to babbztest@gmail.com');
+      setEmailStatus('Appointment details dispatched to contact@blackline-creative.com');
     });
 
     setTimeout(() => {
@@ -138,7 +138,7 @@ END:VCALENDAR`;
       `- Booking ID: ${bookingDetails?.licenseKey}\n` +
       `- Notes: ${notes || 'None'}\n`
     );
-    window.open(`mailto:babbztest@gmail.com?subject=${subject}&body=${body}`, '_blank');
+    window.open(`mailto:contact@blackline-creative.com?subject=${subject}&body=${body}`, '_blank');
   };
 
   return (
