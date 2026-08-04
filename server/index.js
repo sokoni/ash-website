@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import { logEvent } from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,11 +40,24 @@ app.use(cors({
 
 app.use(express.json({ limit: '10kb' })); // Body payload size limit (10kb) to prevent DoS
 
+// Structured API Request Audit Logger Middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logEvent('API_REQUEST', 'INFO', `HTTP ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`, {
+      statusCode: res.statusCode,
+      durationMs: duration
+    }, req);
+  });
+  next();
+});
+
 // API Timeout Protection Middleware (10 seconds timeout)
 app.use((req, res, next) => {
   req.setTimeout(10000, () => {
     if (!res.headersSent) {
-      logSuspiciousActivity(req, 'API Request Timeout Exceeded (10s)', 'WARN');
+      logEvent('SECURITY_EVENT', 'WARN', 'API Request Timeout Exceeded (10s)', {}, req);
       res.status(408).json({ error: 'Request processing timeout' });
     }
   });
@@ -112,10 +126,8 @@ function sanitizeEmail(email) {
 }
 
 // Suspicious Activity Logger
-function logSuspiciousActivity(req, reason, level = 'WARN') {
-  const clientIp = req.ip || req.socket?.remoteAddress || '127.0.0.1';
-  const timestamp = new Date().toISOString();
-  console.warn(`[SECURITY ${level}] [${timestamp}] IP: ${clientIp} | Path: ${req.method} ${req.originalUrl} | Reason: ${reason}`);
+function logSuspiciousActivity(req, reason, level = 'WARN', details = {}) {
+  return logEvent('SECURITY_EVENT', level, reason, details, req);
 }
 
 // Account Lockout & Brute-Force Tracker (5 attempts max, 15 min lock)
@@ -780,6 +792,9 @@ app.use((err, req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 BlackLine Container API server running on port ${PORT}`);
-  console.log(`📁 Database file path: ${DB_FILE}`);
+  logEvent('SERVER_INFO', 'INFO', `BlackLine Container API server running on port ${PORT}`, {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    dbFile: DB_FILE
+  });
 });
