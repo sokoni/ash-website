@@ -42,40 +42,43 @@ export default function AboutUsPage({ onBookConsultation }) {
 
       {/* Story & Philosophy Section */}
       <div className="glass-panel max-w-5xl mx-auto p-8 sm:p-10 rounded-3xl border border-[#A0C4FF]/20 space-y-8 bg-gradient-to-b from-[#0E1420] to-[#070A0F]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold text-[#38BDF8] uppercase tracking-wider">
-              <Target className="w-4 h-4" /> Our Mission
+              <Target className="w-4 h-4" /> Strategic Foundation
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
-              Crafting Software That Demands Attention & Drives Growth
+              Every Great Brand <span className="pastel-glow-text">Starts with a Line.</span>
             </h2>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
-              BlackLine Creative was founded on a simple principle: modern web software should never compromise between visual beauty, extreme speed, and containerized backend stability.
+              Every design decision is guided by strategy, ensuring the final outcome not only looks great but also strengthens brand recognition, improves customer experience, and supports long-term business growth.
             </p>
-            <p className="text-xs text-[#94A3B8] leading-relaxed">
-              We work 1-on-1 with founders, product leaders, and businesses to architect custom frontend experiences and deploy robust Docker REST API backends.
+            <div className="space-y-1.5 pt-2 border-t border-[#A0C4FF]/10 text-xs text-[#B9D6F2] font-medium">
+              <p>Before an architect designs a building, they draw a line.</p>
+              <p>Before a musician writes a song, they write a line.</p>
+              <p>Before a product launches, someone creates a blueprint.</p>
+            </div>
+            <p className="text-xs text-[#A0C4FF] font-semibold pt-1">
+              The same is true for marketing.
             </p>
           </div>
 
           <div className="space-y-4 glass-panel p-6 rounded-2xl border border-[#A0C4FF]/15 bg-[#070A0F]/80">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-400" /> Core Agency Guarantees
-            </h3>
-            <ul className="space-y-3 text-xs text-[#94A3B8]">
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>No Generic Placeholders:</strong> Every line of CSS and JavaScript is custom-tuned.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Containerized Security:</strong> Docker backend API isolation for user data and bookings.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Direct Senior Access:</strong> Work directly with our lead architects during 1-on-1 calls.</span>
-              </li>
-            </ul>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              Too many businesses jump straight into websites, social media, advertising, or logos without first building a strategy.
+            </p>
+            <p className="text-xs font-bold text-white">
+              BlackLine Creative exists to change that.
+            </p>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              We help businesses create digital foundations that support long-term growth through strategy, branding, websites, search optimization, and measurable marketing systems.
+            </p>
+            <div className="p-3.5 rounded-xl bg-[#A0C4FF]/10 border border-[#A0C4FF]/20 space-y-1">
+              <p className="text-xs font-semibold text-[#A0C4FF]">We don't just build websites.</p>
+              <p className="text-xs font-bold text-white">
+                We build businesses that are easier to find, easier to understand, and easier to grow.
+              </p>
+            </div>
           </div>
         </div>
 
