@@ -107,34 +107,44 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     }
   };
 
-  // Step 1 Submit: Process registration or login
+  // Commented out 2-step verification requirement: Direct login bypass
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (mode === 'signup') {
-      const targetEmail = email || 'client@example.com';
-      const targetName = name || targetEmail.split('@')[0];
+    const targetEmail = email || 'client@example.com';
+    const targetName = name || targetEmail.split('@')[0];
 
-      apiRegisterUser(targetName, targetEmail, password).then(({ user: userProfile, verificationCode }) => {
+    if (mode === 'signup') {
+      apiRegisterUser(targetName, targetEmail, password).then(({ user: userProfile }) => {
         setIsLoading(false);
-        setGeneratedCode(verificationCode);
-        sendVerificationEmail(targetName, targetEmail, verificationCode);
-        setStep(2); // Prompt user to enter verification code sent to email!
+        onLoginSuccess(userProfile);
       }).catch(() => {
-        const code = generateNewCode();
-        sendVerificationEmail(targetName, targetEmail, code);
         setIsLoading(false);
-        setStep(2);
+        onLoginSuccess({
+          id: 'usr_' + Math.random().toString(36).substr(2, 9),
+          name: targetName,
+          email: targetEmail,
+          role: 'Client Account',
+          emailVerified: true,
+          createdAt: new Date().toLocaleDateString()
+        });
       });
-    } else if (enable2FA) {
-      setTimeout(() => {
-        setIsLoading(false);
-        generateNewCode();
-        setStep(2);
-      }, 600);
     } else {
-      handleSkip2FA();
+      apiLoginUser(targetEmail).then((userProfile) => {
+        setIsLoading(false);
+        onLoginSuccess(userProfile);
+      }).catch(() => {
+        setIsLoading(false);
+        onLoginSuccess({
+          id: 'usr_' + Math.random().toString(36).substr(2, 9),
+          name: targetName,
+          email: targetEmail,
+          role: 'Client Account',
+          emailVerified: true,
+          createdAt: new Date().toLocaleDateString()
+        });
+      });
     }
   };
 
