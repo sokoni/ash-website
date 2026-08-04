@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, Code, Target, Search, BarChart3, Zap, ArrowRight, CheckCircle2, Wrench, Palette } from 'lucide-react';
+import ProcessTimeline from './ProcessTimeline';
 
 export default function ServicesPage({ onBookConsultation }) {
   const services = [
@@ -160,6 +161,9 @@ export default function ServicesPage({ onBookConsultation }) {
           );
         })}
       </div>
+
+      {/* Agency Process & Timeline */}
+      <ProcessTimeline />
     </div>
   );
 }

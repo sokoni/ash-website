@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, Zap, Target, Layers, ShieldCheck, ArrowRight, Code, Cpu, Eye, Compass } from 'lucide-react';
+import { Sparkles, Zap, Target, ArrowRight, Code, Cpu, Eye, Compass } from 'lucide-react';
+import ProcessTimeline from './ProcessTimeline';
 
 export default function BlackLineTheory({ onBookConsultation }) {
   const pillars = [
@@ -81,6 +82,9 @@ export default function BlackLineTheory({ onBookConsultation }) {
           );
         })}
       </div>
+
+      {/* Process & Timeline Roadmap */}
+      <ProcessTimeline />
 
       {/* Philosophy Principles */}
       <div className="glass-panel max-w-4xl mx-auto p-8 rounded-3xl border border-[#A0C4FF]/20 bg-gradient-to-br from-[#0E1420] to-[#070A0F] space-y-6">
