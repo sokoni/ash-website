@@ -743,6 +743,36 @@ app.post('/api/upload', (req, res) => {
   });
 });
 
+// HTTPS Enforcer for Production Deployment
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
+// Production Static Asset Caching
+const DIST_DIR = path.join(__dirname, '../dist');
+if (fs.existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR, {
+    maxAge: '1y',
+    immutable: true,
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      }
+    }
+  }));
+}
+
+// 404 Fallback Route Handler
+app.use((req, res) => {
+  if (req.accepts('html') && fs.existsSync(path.join(DIST_DIR, 'index.html'))) {
+    return res.sendFile(path.join(DIST_DIR, 'index.html'));
+  }
+  res.status(404).json({ error: 'Endpoint or resource not found' });
+});
+
 // Generic Express Error Handler (suppresses internal stack traces & sensitive server information)
 app.use((err, req, res, _next) => {
   logSuspiciousActivity(req, `Unhandled server error: ${err.message}`, 'CRITICAL');
