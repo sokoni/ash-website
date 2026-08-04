@@ -88,13 +88,6 @@ export default function WebsiteCatalog({ onSelectPreview, onSelectBuy }) {
                 </span>
               </div>
 
-              {/* Quick Rating Badge */}
-              <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#070A0F]/80 border border-white/10 backdrop-blur-md text-xs font-semibold text-amber-300">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span>{site.rating}</span>
-                <span className="text-[#94A3B8] text-[10px]">({site.reviewsCount})</span>
-              </div>
-
               {/* Hover Live Preview Trigger */}
               <div className="absolute inset-0 bg-[#070A0F]/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                 <button

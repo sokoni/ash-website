@@ -34,10 +34,6 @@ export default function ProjectsPage({ onPreview, onBookConsultation }) {
                 <span className="px-3 py-1 rounded-full bg-[#070A0F]/80 backdrop-blur-md text-[#A0C4FF] text-[10px] font-bold uppercase tracking-wider border border-[#A0C4FF]/20">
                   {project.category}
                 </span>
-                <div className="flex items-center gap-1 bg-[#070A0F]/80 px-2.5 py-1 rounded-full text-xs font-bold text-amber-400 border border-amber-400/20">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
-                  <span>{project.rating}</span>
-                </div>
               </div>
 
               <div className="z-10 mt-6">
