@@ -621,6 +621,128 @@ app.post('/api/consultations', (req, res) => {
   res.status(201).json({ status: 'success', booking: bookingRecord });
 });
 
+// Secure File Upload Validation & Storage Module
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true, mode: 0o700 });
+}
+
+// Allowed MIME & Extension Whitelist
+const ALLOWED_MIME_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'application/pdf',
+  'text/plain',
+  'application/zip'
+]);
+
+const ALLOWED_EXTENSIONS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+  '.pdf',
+  '.txt',
+  '.zip'
+]);
+
+// Anti-Malware / Virus Scanning Hook
+function scanFileForViruses(fileBuffer) {
+  if (!fileBuffer || !Buffer.isBuffer(fileBuffer)) return false;
+  
+  // EICAR Standard Antivirus Test File Signature Check
+  const eicarSignature = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
+  if (fileBuffer.toString('ascii').includes(eicarSignature)) {
+    return false; // Malware detected
+  }
+  
+  // Executable Magic Byte Inspection (MZ header for PE, ELF header, script shebangs)
+  const headerHex = fileBuffer.slice(0, 4).toString('hex');
+  const headerAscii = fileBuffer.slice(0, 2).toString('ascii');
+  
+  if (headerAscii === 'MZ' || headerHex === '7f454c46' || headerAscii === '#!') {
+    return false; // Executable binary / script detected
+  }
+  
+  return true; // Clean
+}
+
+// ROUTE 7: POST /api/upload (Secure File Upload Endpoint)
+app.post('/api/upload', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
+  const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
+
+  if (isRateLimited(clientIp, 10, 600000)) {
+    logSuspiciousActivity(req, 'Rate limit exceeded on file upload', 'HIGH');
+    return res.status(429).json({ error: 'Too many upload attempts. Please try again later.' });
+  }
+
+  const { originalName, mimeType, fileBase64 } = req.body || {};
+
+  if (!originalName || !mimeType || !fileBase64) {
+    return res.status(400).json({ error: 'Invalid file upload payload parameters' });
+  }
+
+  // 1. Path Traversal & Control Character Sanitization
+  const cleanFilename = path.basename(originalName).replace(/[\u0000\r\n\t]/g, '').trim();
+  
+  // 2. Prevent Double Extension Exploits (e.g., payload.png.exe)
+  const extensionParts = cleanFilename.split('.');
+  if (extensionParts.length > 2) {
+    logSuspiciousActivity(req, `Double extension upload rejected: ${cleanFilename}`, 'CRITICAL');
+    return res.status(400).json({ error: 'Invalid filename formatting. Double extensions are rejected.' });
+  }
+
+  const ext = path.extname(cleanFilename).toLowerCase();
+
+  // 3. File Extension & MIME Type Whitelist Validation
+  if (!ALLOWED_EXTENSIONS.has(ext) || !ALLOWED_MIME_TYPES.has(mimeType.toLowerCase())) {
+    logSuspiciousActivity(req, `Unapproved file extension or MIME type: ${ext} (${mimeType})`, 'HIGH');
+    return res.status(400).json({ error: 'File type or MIME extension is not allowed.' });
+  }
+
+  // 4. Decode & File Size Check (Max 5MB)
+  let fileBuffer;
+  try {
+    fileBuffer = Buffer.from(fileBase64, 'base64');
+  } catch {
+    return res.status(400).json({ error: 'Invalid base64 file encoding.' });
+  }
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
+  if (fileBuffer.length > MAX_FILE_SIZE) {
+    return res.status(400).json({ error: 'File size exceeds maximum 5MB limit.' });
+  }
+
+  // 5. Antivirus & Executable Inspection Scan Hook
+  const isClean = scanFileForViruses(fileBuffer);
+  if (!isClean) {
+    logSuspiciousActivity(req, `Malware / Executable signature detected in upload: ${cleanFilename}`, 'CRITICAL');
+    return res.status(400).json({ error: 'File security scan failed. Executables and suspicious files are blocked.' });
+  }
+
+  // 6. Generate Cryptographically Randomized Filename Outside Public Web Root
+  const randomId = crypto.randomBytes(16).toString('hex');
+  const safeStorageFilename = `upload_${randomId}${ext}`;
+  const targetPath = path.join(UPLOADS_DIR, safeStorageFilename);
+
+  // Write file securely with mode 0o600 (read/write by owner only)
+  try {
+    fs.writeFileSync(targetPath, fileBuffer, { mode: 0o600 });
+  } catch (err) {
+    console.error('File storage error:', err.message);
+    return res.status(500).json({ error: 'Failed to securely store uploaded file.' });
+  }
+
+  res.status(201).json({
+    status: 'success',
+    fileId: randomId,
+    filename: safeStorageFilename,
+    message: 'File uploaded and verified successfully'
+  });
+});
+
 // Generic Express Error Handler (suppresses internal stack traces & sensitive server information)
 app.use((err, req, res, _next) => {
   logSuspiciousActivity(req, `Unhandled server error: ${err.message}`, 'CRITICAL');
