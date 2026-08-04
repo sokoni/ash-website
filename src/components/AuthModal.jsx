@@ -12,6 +12,7 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
   const [password, setPassword] = useState('');
   
   // 2-Step Verification State
+  const [enable2FA, setEnable2FA] = useState(false);
   const [generatedCode, setGeneratedCode] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [otpError, setOtpError] = useState('');
@@ -31,32 +32,56 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     return code;
   };
 
-  // Timer countdown for resending 2FA code
-  useEffect(() => {
-    let timer;
-    if (step === 2 && resendTimer > 0) {
-      timer = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (resendTimer === 0) {
-      setCanResend(true);
-    }
-    return () => clearInterval(timer);
-  }, [step, resendTimer]);
+  const handleResendCode = () => {
+    generateNewCode();
+    setOtp(['', '', '', '', '', '']);
+  };
 
-  // Step 1 Submit: Validate credentials and move to 2-Step Verification
+  const handleSkip2FA = () => {
+    setIsLoading(true);
+    const targetEmail = email || 'client@example.com';
+    const targetName = name || targetEmail.split('@')[0];
+
+    (mode === 'signup' 
+      ? apiRegisterUser(targetName, targetEmail, password)
+      : apiLoginUser(targetEmail)
+    ).then((userProfile) => {
+      setIsLoading(false);
+      onLoginSuccess({
+        ...userProfile,
+        twoFactorEnabled: false
+      });
+    }).catch(() => {
+      setIsLoading(false);
+      onLoginSuccess({
+        id: 'usr_' + Math.random().toString(36).substr(2, 9),
+        name: targetName,
+        email: targetEmail,
+        role: 'Client Account',
+        twoFactorEnabled: false,
+        twoFactorMethod: 'None (Optional 2FA Off)',
+        createdAt: new Date().toLocaleDateString()
+      });
+    });
+  };
+
+  // Step 1 Submit: Process login/registration directly or proceed to 2-Step Verification if enabled
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      const code = generateNewCode();
-      setStep(2); // Proceed to 2-Step Verification!
-    }, 800);
+    if (enable2FA) {
+      setTimeout(() => {
+        setIsLoading(false);
+        generateNewCode();
+        setStep(2); // Proceed to 2-Step Verification!
+      }, 600);
+    } else {
+      handleSkip2FA();
+    }
   };
 
-  // Quick Demo Login bypass to 2-Step Verification
+  // Quick Demo Login
   const handleQuickDemoLogin = () => {
     setEmail('alex.morgan@dev.io');
     setName('Alex Morgan');
@@ -64,9 +89,8 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
 
     setTimeout(() => {
       setIsLoading(false);
-      generateNewCode();
-      setStep(2); // Move to 2-Step Verification
-    }, 500);
+      handleSkip2FA();
+    }, 400);
   };
 
   // Handle OTP digit changes
@@ -258,29 +282,46 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
                     />
                   </div>
                 </div>
-
-                <div className="p-3 bg-[#A0C4FF]/10 rounded-xl border border-[#A0C4FF]/20 flex items-center gap-2 text-xs text-[#A0C4FF]">
-                  <ShieldCheck className="w-4 h-4 text-[#38BDF8] shrink-0" />
-                  <span>2-Step Verification will be requested on the next step.</span>
+                <div className="flex items-center justify-between p-3 bg-[#A0C4FF]/10 rounded-xl border border-[#A0C4FF]/20 text-xs text-[#A0C4FF]">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#38BDF8] shrink-0" />
+                    <span>Enable 2-Step Verification</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={enable2FA}
+                      onChange={(e) => setEnable2FA(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-[#070A0F] border border-[#A0C4FF]/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#A0C4FF] after:border-[#A0C4FF] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#38BDF8]"></div>
+                  </label>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn-pastel-primary w-full py-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 mt-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Sparkles className="w-4 h-4 animate-spin" />
-                      <span>Validating Account...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Continue to 2-Step Verification</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-col gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="btn-pastel-primary w-full py-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Sparkles className="w-4 h-4 animate-spin text-[#070A0F]" />
+                        <span>Processing Account...</span>
+                      </>
+                    ) : enable2FA ? (
+                      <>
+                        <span>Continue to 2-Step Verification</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        <span>{mode === 'signup' ? 'Complete Registration' : 'Sign In Immediately'}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
             </>
           ) : (
@@ -325,49 +366,40 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
                         value={digit}
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(idx, e)}
-                        className={`w-12 h-14 rounded-xl bg-[#070A0F] border text-center text-xl font-mono font-bold text-white focus:outline-none transition-all ${
-                          otpError
-                            ? 'border-red-500/80 bg-red-500/10'
-                            : digit
-                            ? 'border-[#38BDF8] bg-[#38BDF8]/10'
-                            : 'border-[#A0C4FF]/20 focus:border-[#38BDF8]'
-                        }`}
+                        className="w-11 h-12 text-center text-xl font-bold font-mono rounded-xl bg-[#070A0F] border border-[#A0C4FF]/25 text-white focus:outline-none focus:border-[#38BDF8] focus:ring-2 focus:ring-[#38BDF8]/20 transition-all"
                       />
                     ))}
                   </div>
 
                   {otpError && (
-                    <p className="text-xs text-red-400 text-center mt-2 font-medium">
+                    <div className="text-red-400 text-xs text-center mt-2 font-medium animate-fadeIn">
                       {otpError}
-                    </p>
+                    </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-[#94A3B8]">
-                  <span>Didn't receive code?</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#94A3B8]">Didn't get code?</span>
                   <button
                     type="button"
                     disabled={!canResend}
-                    onClick={() => {
-                      generateNewCode();
-                      setOtp(['', '', '', '', '', '']);
-                    }}
-                    className={`flex items-center gap-1 font-semibold transition-colors ${
-                      canResend ? 'text-[#38BDF8] hover:underline' : 'text-[#94A3B8]/60 cursor-not-allowed'
+                    onClick={handleResendCode}
+                    className={`font-semibold flex items-center gap-1 transition-colors ${
+                      canResend ? 'text-[#38BDF8] hover:underline' : 'text-[#94A3B8]/50 cursor-not-allowed'
                     }`}
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
+                    <RefreshCw className={`w-3.5 h-3.5 ${!canResend ? 'animate-spin' : ''}`} />
                     <span>{canResend ? 'Resend 2FA Code' : `Resend in ${resendTimer}s`}</span>
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => handleSkip2FA()}
                     className="btn-pastel-secondary flex-1 py-3.5 rounded-xl text-xs font-bold"
                   >
-                    Back
+                    Skip 2FA
                   </button>
                   
                   <button
@@ -377,8 +409,8 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
                   >
                     {isLoading ? (
                       <>
-                        <Sparkles className="w-4 h-4 animate-spin" />
-                        <span>Verifying 2FA Code...</span>
+                        <Sparkles className="w-4 h-4 animate-spin text-[#070A0F]" />
+                        <span>Verifying...</span>
                       </>
                     ) : (
                       <>
