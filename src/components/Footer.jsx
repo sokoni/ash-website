@@ -13,7 +13,7 @@ export default function Footer({ onNavigate }) {
 
   return (
     <footer className="border-t border-[#9E9E9E]/20 bg-[#0F0F0F] py-12 relative overflow-hidden">
-      <div className="w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12">
+      <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16">
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 items-start justify-between">
           

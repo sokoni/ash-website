@@ -8,8 +8,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
       <div className="bg-orb-blue w-[500px] h-[500px] bg-[#FF2ED4]/15 -top-32 -left-32 animate-pulse-glow" />
       <div className="bg-orb-blue w-[600px] h-[600px] bg-[#30BBFF]/15 top-10 right-0 animate-pulse-glow" style={{ animationDelay: '2s' }} />
 
-      <div className="w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 relative z-10">
-        <div className="text-center max-w-4xl mx-auto space-y-6">
+      <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 relative z-10">
+        <div className="text-center max-w-5xl mx-auto space-y-6">
           
           {/* Palette Pill Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-[#FF2ED4]/30 text-xs font-semibold text-[#F5F5F5] shadow-xl shadow-[#FF2ED4]/10 animate-float">
@@ -30,7 +30,7 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
           </div>
 
           {/* Description in Italicized Light Text */}
-          <p className="text-base sm:text-lg text-[#F5F5F5]/80 italic max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-base sm:text-lg text-[#F5F5F5]/80 italic max-w-3xl mx-auto leading-relaxed font-light">
             Helping ambitious brands build digital experiences that people remember and search engines understand.
           </p>
 
@@ -55,7 +55,7 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
           </div>
 
           {/* 4 Pillars Grid matching Brand Image */}
-          <div className="pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto border-t border-[#9E9E9E]/20 mt-8">
+          <div className="pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full border-t border-[#9E9E9E]/20 mt-8">
             {/* STRATEGY */}
             <div className="glass-panel p-5 rounded-2xl border border-[#30BBFF]/20 text-left space-y-2 bg-[#18181C]/80 hover:border-[#30BBFF]/50 transition-all">
               <div className="flex items-center gap-2">

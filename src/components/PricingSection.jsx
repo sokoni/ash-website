@@ -4,7 +4,7 @@ import { CONSULTATION_PACKAGES, CONSULTATION_TYPES } from '../data/websitesData'
 
 export default function PricingSection({ onSelectTier, onSelectPaymentMethod }) {
   return (
-    <section id="pricing" className="py-16 w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12">
+    <section id="pricing" className="py-16 w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16">
       
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">

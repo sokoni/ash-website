@@ -53,7 +53,7 @@ export default function BlackLineTheory({ onBookConsultation }) {
       </div>
 
       {/* 4 Pillars Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16">
         {pillars.map((pillar, index) => {
           const Icon = pillar.icon;
           return (

@@ -27,7 +27,7 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-[#9E9E9E]/20 bg-[#0F0F0F]/90 backdrop-blur-md">
-      <div className="w-full max-w-[1750px] mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between">
+      <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 h-20 flex items-center justify-between">
         
         {/* Brand Logo */}
         <div 
