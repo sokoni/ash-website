@@ -1,22 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import WebsiteCatalog from './components/WebsiteCatalog';
+import ComingSoonPage from './components/ComingSoonPage';
 import LivePreviewModal from './components/LivePreviewModal';
-import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
-import BlackLineTheory from './components/BlackLineTheory';
-import ServicesPage from './components/ServicesPage';
-import ProjectsPage from './components/ProjectsPage';
-import AboutUsPage from './components/AboutUsPage';
-import ContactSection from './components/ContactSection';
-import Footer from './components/Footer';
 import { apiGetConsultations } from './api';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace (home), theory, services, projects, about, pricing, dashboard
+  const [activeTab, setActiveTab] = useState('coming-soon');
 
   // User Session State
   const [user, setUser] = useState(() => {
@@ -89,14 +80,6 @@ export default function App() {
     showToast(`Consultation confirmed! ${order.websiteName} added to your portal.`);
   };
 
-  const handleSelectBuyTier = (tier) => {
-    setBuyTarget({
-      id: tier.id,
-      name: tier.name,
-      price: tier.price
-    });
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-[#070A0F] text-[#F0F6FC]">
 
@@ -107,91 +90,20 @@ export default function App() {
         </div>
       )}
 
-      {/* Glassmorphic Navbar */}
-      <Navbar
-        user={user}
-        onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
-        onLogout={handleLogout}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        purchasedCount={purchases.length}
-      />
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4">
-
-        {activeTab === 'marketplace' && (
-          <>
-            <Hero
-              onExplore={() => {
-                const el = document.getElementById('catalog');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              onViewPricing={() => setActiveTab('pricing')}
-              onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: 'Start My Project Consultation' })}
-            />
-            <WebsiteCatalog
-              onSelectPreview={(site) => setPreviewTemplate(site)}
-              onSelectBuy={(site) => setBuyTarget(site)}
-            />
-          </>
-        )}
-
-        {activeTab === 'theory' && (
-          <BlackLineTheory
-            onBookConsultation={(target) => setBuyTarget(target)}
-          />
-        )}
-
-        {activeTab === 'services' && (
-          <ServicesPage
-            onBookConsultation={(target) => setBuyTarget(target)}
-          />
-        )}
-
-        {activeTab === 'projects' && (
-          <ProjectsPage
-            onPreview={(project) => setPreviewTemplate(project)}
-            onBookConsultation={(target) => setBuyTarget(target)}
-          />
-        )}
-
-        {activeTab === 'about' && (
-          <AboutUsPage
-            onBookConsultation={(target) => setBuyTarget(target)}
-          />
-        )}
-
-        {activeTab === 'pricing' && (
-          <PricingSection
-            onSelectTier={handleSelectBuyTier}
-            onSelectPaymentMethod={(methodId) => {
-              setBuyTarget({
-                id: methodId,
-                name: `Consultation (${methodId.replace('-', ' ').toUpperCase()})`,
-                price: 'Free'
-              });
-            }}
-          />
-        )}
-
-        {activeTab === 'dashboard' && (
+      {/* Coming Soon Placeholder View */}
+      {activeTab === 'dashboard' ? (
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
           <UserDashboard
             user={user}
             purchases={purchases}
-            onSelectMarketplace={() => setActiveTab('marketplace')}
+            onSelectMarketplace={() => setActiveTab('coming-soon')}
           />
-        )}
-
-        {/* Global Contact Section */}
-        {activeTab !== 'dashboard' && (
-          <ContactSection onBookConsultation={(target) => setBuyTarget(target)} />
-        )}
-
-      </main>
-
-      {/* Footer */}
-      <Footer onNavigate={setActiveTab} />
+        </main>
+      ) : (
+        <ComingSoonPage
+          onBookConsultation={(target) => setBuyTarget(target)}
+        />
+      )}
 
       {/* Modals */}
       {previewTemplate && (
