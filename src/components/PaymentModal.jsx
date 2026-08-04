@@ -177,7 +177,7 @@ END:VCALENDAR`;
             {/* Email Notification Status Badge */}
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 flex items-center justify-center gap-2">
               <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Appointment details sent to <strong>babbztest@gmail.com</strong></span>
+              <span>A confirmation email & calendar invite have been dispatched to your email.</span>
             </div>
 
             <div className="glass-panel p-4 rounded-xl text-xs text-left space-y-2 font-mono text-[#B9D6F2] border border-[#A0C4FF]/20">
@@ -207,11 +207,10 @@ END:VCALENDAR`;
               </button>
 
               <button
-                onClick={handleSendDirectEmailCopy}
+                onClick={onClose}
                 className="btn-pastel-secondary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
               >
-                <Send className="w-4 h-4 text-[#A0C4FF]" />
-                <span>Send Email Copy</span>
+                <span>Done</span>
               </button>
             </div>
           </div>
@@ -324,7 +323,7 @@ END:VCALENDAR`;
                 {isProcessing ? (
                   <>
                     <Sparkles className="w-4 h-4 animate-spin text-[#070A0F]" />
-                    <span>Sending Notification to babbztest@gmail.com...</span>
+                    <span>Confirming Strategy Consultation...</span>
                   </>
                 ) : (
                   <>
@@ -337,7 +336,7 @@ END:VCALENDAR`;
 
               <div className="flex items-center justify-center gap-2 text-[10px] text-[#94A3B8]">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Appointment details will be sent to babbztest@gmail.com and your email.</span>
+                <span>Your appointment details & calendar invite will be sent directly to your email.</span>
               </div>
             </div>
           </form>
