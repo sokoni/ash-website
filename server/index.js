@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.typekit.net https://*.sentry.io https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net; font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://fonts.cdnfonts.com data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 https://formsubmit.co https://*.sentry.io https://*.ingest.us.sentry.io https://*.ingest.sentry.io; frame-src 'self' https://www.google.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.typekit.net https://*.sentry.io https://www.google.com https://www.gstatic.com https://cal.com https://*.cal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net; font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://fonts.cdnfonts.com data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 https://formsubmit.co https://*.sentry.io https://*.ingest.us.sentry.io https://*.ingest.sentry.io https://cal.com https://*.cal.com; frame-src 'self' https://www.google.com https://cal.com https://*.cal.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
   );
   next();
 });
