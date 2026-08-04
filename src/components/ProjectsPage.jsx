@@ -55,24 +55,77 @@ export default function ProjectsPage({ onPreview, onBookConsultation }) {
             {/* Content Details */}
             <div className="p-6 space-y-5 flex-1 flex flex-col justify-between bg-[#0E1420]/60">
               <div className="space-y-4">
-                <p className="text-xs text-[#94A3B8] leading-relaxed">
-                  {project.description}
-                </p>
-
-                {/* Tech Stack Badges */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold uppercase text-[#A0C4FF] tracking-wider">Tech Architecture</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.features.slice(0, 4).map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2.5 py-1 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/15 text-[11px] font-mono text-[#B9D6F2]"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                {/* Meta Badges: Role & Industry */}
+                {project.role && (
+                  <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#A0C4FF]/10 text-[#A0C4FF] font-semibold border border-[#A0C4FF]/20">
+                      Role: {project.role}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#38BDF8]/10 text-[#38BDF8] font-semibold border border-[#38BDF8]/20">
+                      Industry: {project.category}
+                    </span>
                   </div>
-                </div>
+                )}
+
+                {/* Challenge Section */}
+                {project.challenge ? (
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-[#A0C4FF] tracking-wider">Challenge</span>
+                    <p className="text-xs text-[#94A3B8] leading-relaxed font-medium">
+                      {project.challenge}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#94A3B8] leading-relaxed">
+                    {project.description}
+                  </p>
+                )}
+
+                {/* Services Provided Section */}
+                {project.servicesProvided ? (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold uppercase text-[#A0C4FF] tracking-wider">Services Provided</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.servicesProvided.map((service) => (
+                        <span
+                          key={service}
+                          className="px-2.5 py-1 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/15 text-[11px] font-mono text-[#B9D6F2]"
+                        >
+                          • {service}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold uppercase text-[#A0C4FF] tracking-wider">Tech Architecture</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.features.slice(0, 4).map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2.5 py-1 rounded-xl bg-[#070A0F] border border-[#A0C4FF]/15 text-[11px] font-mono text-[#B9D6F2]"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Impact Highlights Section */}
+                {project.impact && (
+                  <div className="space-y-2 pt-2 border-t border-[#A0C4FF]/15">
+                    <span className="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Impact & Results</span>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {project.impact.map((item) => (
+                        <li key={item} className="flex items-center gap-1.5 text-xs text-[#94A3B8]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -90,7 +143,7 @@ export default function ProjectsPage({ onPreview, onBookConsultation }) {
                   className="btn-pastel-primary flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4 text-[#070A0F]" />
-                  <span>Request Similar Concept</span>
+                  <span>Request Similar Case Study</span>
                 </button>
               </div>
             </div>

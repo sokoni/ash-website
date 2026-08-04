@@ -1,30 +1,47 @@
 export const WEBSITE_TEMPLATES = [
   {
-    id: "web-nexus-saas",
-    name: "Nexus SaaS Platform",
-    tagline: "High-Converting AI SaaS Landing & Dashboard Framework",
-    category: "SaaS & AI",
-    rating: 4.9,
-    reviewsCount: 48,
-    techStack: ["React 18", "Tailwind CSS", "Vite", "Lucide", "Framer Motion"],
-    features: [
-      "1-on-1 Architecture Consultation",
-      "Interactive Analytics Layouts",
-      "Custom Auth & Portal Design",
-      "Sign In / Sign Up Workflow",
-      "100% Responsive & SEO Optimized"
+    id: "belay-diagnostics",
+    name: "Belay Diagnostics",
+    tagline: "Genomic Science Digital Transformation & Growth Platform",
+    category: "Healthcare / Biotech",
+    role: "Digital Marketing Manager",
+    rating: 5.0,
+    reviewsCount: 64,
+    challenge: "Communicate highly technical genomic science in ways physicians, researchers, patients, and commercial partners could quickly understand.",
+    servicesProvided: [
+      "Website Strategy",
+      "Product Launches",
+      "Content Marketing",
+      "HubSpot Marketing Setup",
+      "Marketing Automation",
+      "Webinars",
+      "SEO",
+      "Analytics",
+      "Sales Enablement",
+      "Scientific Publications",
+      "Conference Marketing",
+      "Cross-functional Project Management"
     ],
-    description: "Architected for founders launching custom software or AI startups. Book a consultation to customize this layout, integrate your APIs, and launch with senior guidance.",
-    previewUrl: "https://example.com/preview/nexus",
-    bgGradient: "from-blue-900/40 to-slate-900/60",
-    badge: "Most Requested",
-    badgeColor: "bg-[#A0C4FF]/20 text-[#A0C4FF] border-[#A0C4FF]/30",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-    demoCode: `// Sample Consultation Scope
-import { useState } from 'react';
-export default function SaaSHeader() {
-  return <header className="bg-slate-900 text-pastel-blue">BlackLine Custom SaaS Scope</header>;
-}`
+    impact: [
+      "Supported multiple product launches",
+      "Created scalable marketing systems",
+      "Improved commercial enablement",
+      "Strengthened physician education"
+    ],
+    techStack: ["HubSpot Automation", "React", "SEO Architecture", "GA4 Analytics"],
+    features: [
+      "Website Strategy",
+      "Product Launches",
+      "HubSpot Automation",
+      "SEO & Analytics",
+      "Sales Enablement"
+    ],
+    description: "Communicate highly technical genomic science in ways physicians, researchers, patients, and commercial partners could quickly understand.",
+    previewUrl: "https://example.com/preview/belay-diagnostics",
+    bgGradient: "from-teal-900/60 to-slate-900/80",
+    badge: "Featured Case Study",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: "web-novacommerce",
