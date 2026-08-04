@@ -7,11 +7,15 @@ import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
+import BlackLineTheory from './components/BlackLineTheory';
+import ServicesPage from './components/ServicesPage';
+import ProjectsPage from './components/ProjectsPage';
+import AboutUsPage from './components/AboutUsPage';
 import Footer from './components/Footer';
 import { apiGetConsultations } from './api';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace, pricing, dashboard
+  const [activeTab, setActiveTab] = useState('marketplace'); // marketplace (home), theory, services, projects, about, pricing, dashboard
 
   // User Session State
   const [user, setUser] = useState(() => {
@@ -113,7 +117,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4">
 
         {activeTab === 'marketplace' && (
           <>
@@ -130,6 +134,31 @@ export default function App() {
               onSelectBuy={(site) => setBuyTarget(site)}
             />
           </>
+        )}
+
+        {activeTab === 'theory' && (
+          <BlackLineTheory
+            onBookConsultation={(target) => setBuyTarget(target)}
+          />
+        )}
+
+        {activeTab === 'services' && (
+          <ServicesPage
+            onBookConsultation={(target) => setBuyTarget(target)}
+          />
+        )}
+
+        {activeTab === 'projects' && (
+          <ProjectsPage
+            onPreview={(project) => setPreviewTemplate(project)}
+            onBookConsultation={(target) => setBuyTarget(target)}
+          />
+        )}
+
+        {activeTab === 'about' && (
+          <AboutUsPage
+            onBookConsultation={(target) => setBuyTarget(target)}
+          />
         )}
 
         {activeTab === 'pricing' && (

@@ -32,28 +32,27 @@ export default function Navbar({
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#0E1420]/80 p-1.5 rounded-full border border-[#A0C4FF]/15">
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              activeTab === 'marketplace'
-                ? 'bg-gradient-to-r from-[#A0C4FF]/20 to-[#38BDF8]/20 text-white border border-[#A0C4FF]/40 shadow-sm shadow-[#38BDF8]/10'
-                : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
-            }`}
-          >
-            Service Concepts
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('pricing')}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              activeTab === 'pricing'
-                ? 'bg-gradient-to-r from-[#A0C4FF]/20 to-[#38BDF8]/20 text-white border border-[#A0C4FF]/40 shadow-sm shadow-[#38BDF8]/10'
-                : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
-            }`}
-          >
-            Consultation Packages
-          </button>
+        <nav className="hidden lg:flex items-center gap-1 bg-[#0E1420]/80 p-1.5 rounded-full border border-[#A0C4FF]/15">
+          {[
+            { id: 'marketplace', label: 'Home' },
+            { id: 'theory', label: 'BlackLine Theory' },
+            { id: 'services', label: 'Services' },
+            { id: 'projects', label: 'Projects' },
+            { id: 'about', label: 'About Us' },
+            { id: 'pricing', label: 'Packages' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-[#A0C4FF]/20 to-[#38BDF8]/20 text-white border border-[#A0C4FF]/40 shadow-sm shadow-[#38BDF8]/10'
+                  : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
 
         {/* User Account / Auth Actions */}
