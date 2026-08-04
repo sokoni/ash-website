@@ -1,0 +1,30 @@
+{
+  "users": [
+    {
+      "id": "usr_u3wnc9y6o",
+      "name": "Test Client",
+      "email": "testclient@example.com",
+      "role": "Client Account",
+      "twoFactorEnabled": true,
+      "twoFactorMethod": "6-Digit Security OTP",
+      "createdAt": "8/4/2026"
+    }
+  ],
+  "consultations": [
+    {
+      "id": "booking_zmm5z8paf",
+      "websiteId": "custom-consultation",
+      "websiteName": "Custom Web App Strategy",
+      "price": "Free Consultation",
+      "paymentMethod": "Calendar Booked",
+      "licenseKey": "CONF-BLC-C269I237",
+      "date": "Tomorrow (10:00 AM EST)",
+      "meetingUrl": "https://meet.google.com/meet-blc-bm26ops",
+      "clientName": "Test Client",
+      "clientEmail": "testclient@example.com",
+      "clientPhone": "555-123-4567",
+      "notes": "Docker container test",
+      "createdAt": "2026-08-04T01:36:49.622Z"
+    }
+  ]
+}
