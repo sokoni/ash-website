@@ -14,19 +14,19 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
           {/* Pastel Pill Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-[#A0C4FF]/30 text-xs font-semibold text-[#B9D6F2] shadow-xl shadow-[#A0C4FF]/5 animate-float">
             <Sparkles className="w-4 h-4 text-[#38BDF8] animate-spin" style={{ animationDuration: '6s' }} />
-            <span>Senior Web Strategy & Bespoke Architecture Agency</span>
+            <span>Strategy. Websites. Search. Growth.</span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8] animate-ping" />
           </div>
 
           {/* Main Title */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
-            Build Exceptional Web Products. <br />
-            <span className="pastel-glow-text">Book a Strategy Consultation.</span>
+            Build Brands <br />
+            <span className="pastel-glow-text">That Get Found.</span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Subtitle / Description */}
           <p className="text-lg sm:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
-            Collaborate directly with senior web architects at BlackLine Creative. Schedule a <span className="text-[#A0C4FF] font-semibold">100% free strategy call</span> to evaluate your project scope, custom UI/UX, and technical roadmap.
+            Helping ambitious brands build digital experiences that people remember and search engines understand.
           </p>
 
           {/* Action CTAs */}
