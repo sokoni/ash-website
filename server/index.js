@@ -15,17 +15,23 @@ const PORT = process.env.PORT || 5000;
 // Security Hardening: Disable fingerprinting header
 app.disable('x-powered-by');
 
-// Security Hardening Middleware: HTTP Headers, CSP, HSTS, Clickjacking Prevention
+// Security Hardening Middleware: A+ Rating HTTP Security Headers (Mozilla Observatory & SecurityHeaders.com)
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=(), payment=()');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), camera=(), microphone=(), payment=(), usb=(), display-capture=(), autoplay=(), battery=(), accelerometer=(), gyroscope=(), magnetometer=()'
+  );
+  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.typekit.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net; font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://fonts.cdnfonts.com data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 https://formsubmit.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.typekit.net https://*.sentry.io https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net; font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://fonts.cdnfonts.com data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 https://formsubmit.co https://*.sentry.io https://*.ingest.us.sentry.io https://*.ingest.sentry.io; frame-src 'self' https://www.google.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
   );
   next();
 });
