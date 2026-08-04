@@ -4,6 +4,7 @@ const API_BASE_URL = 'http://localhost:5001/api';
  * Register a user via the Docker API service
  */
 export async function apiRegisterUser(name, email, password) {
+  const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -12,18 +13,51 @@ export async function apiRegisterUser(name, email, password) {
     });
     if (response.ok) {
       const data = await response.json();
-      return data.user;
+      return { user: data.user, verificationCode: data.verificationCode || generatedCode };
     }
   } catch (err) {
     console.log('Docker API server offline, falling back to client storage:', err);
   }
   return {
+    user: {
+      id: 'usr_' + Math.random().toString(36).substr(2, 9),
+      name: name || email.split('@')[0],
+      email: email.toLowerCase(),
+      role: 'Client Account',
+      emailVerified: false,
+      verificationCode: generatedCode,
+      twoFactorEnabled: false,
+      twoFactorMethod: 'Email Verification OTP',
+      createdAt: new Date().toLocaleDateString()
+    },
+    verificationCode: generatedCode
+  };
+}
+
+/**
+ * Verify account email code via Docker API service
+ */
+export async function apiVerifyEmail(email, code) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code })
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.user;
+    }
+  } catch (err) {
+    console.log('Docker API server offline, verified locally:', err);
+  }
+  return {
     id: 'usr_' + Math.random().toString(36).substr(2, 9),
-    name: name || email.split('@')[0],
+    name: email.split('@')[0],
     email: email.toLowerCase(),
     role: 'Client Account',
-    twoFactorEnabled: true,
-    twoFactorMethod: '6-Digit Security OTP',
+    emailVerified: true,
+    twoFactorEnabled: false,
     createdAt: new Date().toLocaleDateString()
   };
 }

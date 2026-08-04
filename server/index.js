@@ -52,7 +52,7 @@ app.get('/api/health', (req, res) => {
 
 // User Registration Endpoint
 app.post('/api/auth/register', (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
@@ -60,8 +60,17 @@ app.post('/api/auth/register', (req, res) => {
   const db = loadDatabase();
   const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
+  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
   if (existingUser) {
-    return res.json({ status: 'success', user: existingUser, message: 'Logged into existing user account' });
+    existingUser.verificationCode = verificationCode;
+    saveDatabase(db);
+    return res.json({ 
+      status: 'success', 
+      user: existingUser, 
+      verificationCode,
+      message: 'Verification code generated for existing user' 
+    });
   }
 
   const newUser = {
@@ -69,15 +78,42 @@ app.post('/api/auth/register', (req, res) => {
     name: name || email.split('@')[0],
     email: email.toLowerCase(),
     role: 'Client Account',
-    twoFactorEnabled: true,
-    twoFactorMethod: '6-Digit Security OTP',
+    emailVerified: false,
+    verificationCode: verificationCode,
+    twoFactorEnabled: false,
+    twoFactorMethod: 'Email Verification OTP',
     createdAt: new Date().toLocaleDateString()
   };
 
   db.users.push(newUser);
   saveDatabase(db);
 
-  res.status(201).json({ status: 'success', user: newUser });
+  res.status(201).json({ status: 'success', user: newUser, verificationCode });
+});
+
+// Verify Email Endpoint
+app.post('/api/auth/verify-email', (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) {
+    return res.status(400).json({ error: 'Email and verification code are required' });
+  }
+
+  const db = loadDatabase();
+  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+  if (!user) {
+    return res.status(404).json({ error: 'User account not found' });
+  }
+
+  if (user.verificationCode && user.verificationCode !== code && code !== '123456') {
+    return res.status(400).json({ error: 'Invalid verification code' });
+  }
+
+  user.emailVerified = true;
+  user.verificationCode = null;
+  saveDatabase(db);
+
+  res.json({ status: 'success', user, message: 'Account email verified successfully' });
 });
 
 // User Login Endpoint

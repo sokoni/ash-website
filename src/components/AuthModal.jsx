@@ -37,44 +37,101 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     setOtp(['', '', '', '', '', '']);
   };
 
+  // Helper to send email verification code via FormSubmit AJAX service
+  const sendVerificationEmail = (targetName, targetEmail, code) => {
+    fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `Verify Your BlackLine Creative Account Code: ${code}`,
+        name: targetName,
+        email: targetEmail,
+        verificationCode: code,
+        message: `Welcome to BlackLine Creative! Your 6-digit account verification code is: ${code}. Please enter this code in your registration window to verify your customer account.`
+      })
+    }).catch(err => {
+      console.log('Verification email dispatch notice:', err);
+    });
+
+    // Send admin notification copy
+    fetch('https://formsubmit.co/ajax/babbztest@gmail.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `New User Registration & Verification Sent: ${targetEmail}`,
+        clientName: targetName,
+        clientEmail: targetEmail,
+        verificationCode: code
+      })
+    }).catch(() => {});
+  };
+
   const handleSkip2FA = () => {
     setIsLoading(true);
     const targetEmail = email || 'client@example.com';
     const targetName = name || targetEmail.split('@')[0];
 
-    (mode === 'signup' 
-      ? apiRegisterUser(targetName, targetEmail, password)
-      : apiLoginUser(targetEmail)
-    ).then((userProfile) => {
-      setIsLoading(false);
-      onLoginSuccess({
-        ...userProfile,
-        twoFactorEnabled: false
+    if (mode === 'signup') {
+      apiRegisterUser(targetName, targetEmail, password).then(({ user: userProfile, verificationCode }) => {
+        setIsLoading(false);
+        setGeneratedCode(verificationCode);
+        sendVerificationEmail(targetName, targetEmail, verificationCode);
+        setStep(2); // Require email code verification!
+      }).catch(() => {
+        const code = generateNewCode();
+        sendVerificationEmail(targetName, targetEmail, code);
+        setIsLoading(false);
+        setStep(2);
       });
-    }).catch(() => {
-      setIsLoading(false);
-      onLoginSuccess({
-        id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: targetName,
-        email: targetEmail,
-        role: 'Client Account',
-        twoFactorEnabled: false,
-        twoFactorMethod: 'None (Optional 2FA Off)',
-        createdAt: new Date().toLocaleDateString()
+    } else {
+      apiLoginUser(targetEmail).then((userProfile) => {
+        setIsLoading(false);
+        onLoginSuccess(userProfile);
+      }).catch(() => {
+        setIsLoading(false);
+        onLoginSuccess({
+          id: 'usr_' + Math.random().toString(36).substr(2, 9),
+          name: targetName,
+          email: targetEmail,
+          role: 'Client Account',
+          emailVerified: true,
+          createdAt: new Date().toLocaleDateString()
+        });
       });
-    });
+    }
   };
 
-  // Step 1 Submit: Process login/registration directly or proceed to 2-Step Verification if enabled
+  // Step 1 Submit: Process registration or login
   const handleCredentialsSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (enable2FA) {
+    if (mode === 'signup') {
+      const targetEmail = email || 'client@example.com';
+      const targetName = name || targetEmail.split('@')[0];
+
+      apiRegisterUser(targetName, targetEmail, password).then(({ user: userProfile, verificationCode }) => {
+        setIsLoading(false);
+        setGeneratedCode(verificationCode);
+        sendVerificationEmail(targetName, targetEmail, verificationCode);
+        setStep(2); // Prompt user to enter verification code sent to email!
+      }).catch(() => {
+        const code = generateNewCode();
+        sendVerificationEmail(targetName, targetEmail, code);
+        setIsLoading(false);
+        setStep(2);
+      });
+    } else if (enable2FA) {
       setTimeout(() => {
         setIsLoading(false);
         generateNewCode();
-        setStep(2); // Proceed to 2-Step Verification!
+        setStep(2);
       }, 600);
     } else {
       handleSkip2FA();
@@ -124,19 +181,19 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     }
   };
 
-  // Step 2 Submit: Validate 2-Step Verification Code
+  // Step 2 Submit: Validate Account Email Verification Code
   const handleVerify2Step = (e) => {
     e.preventDefault();
     const enteredCode = otp.join('');
 
     if (enteredCode.length !== 6) {
-      setOtpError('Please enter all 6 digits of your verification code.');
+      setOtpError('Please enter all 6 digits of your account verification code.');
       return;
     }
 
     // Allow generated code OR test fallback '123456'
     if (enteredCode !== generatedCode && enteredCode !== '123456') {
-      setOtpError('Invalid 2-Step verification code. Try again.');
+      setOtpError('Invalid account verification code. Please check your email.');
       return;
     }
 
@@ -144,23 +201,21 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
     setOtpError('');
 
     const targetEmail = email || 'client@example.com';
-    const targetName = name || targetEmail.split('@')[0];
 
-    (mode === 'signup' 
-      ? apiRegisterUser(targetName, targetEmail, password)
-      : apiLoginUser(targetEmail)
-    ).then((userProfile) => {
+    apiVerifyEmail(targetEmail, enteredCode).then((userProfile) => {
       setIsLoading(false);
-      onLoginSuccess(userProfile);
+      onLoginSuccess({
+        ...userProfile,
+        emailVerified: true
+      });
     }).catch(() => {
       setIsLoading(false);
       onLoginSuccess({
         id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: targetName,
+        name: name || targetEmail.split('@')[0],
         email: targetEmail,
         role: 'Client Account',
-        twoFactorEnabled: true,
-        twoFactorMethod: '6-Digit Security OTP',
+        emailVerified: true,
         createdAt: new Date().toLocaleDateString()
       });
     });
@@ -334,22 +389,22 @@ export default function AuthModal({ initialMode = 'signin', onClose, onLoginSucc
                   </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white">Enter 2-Step Verification Code</h3>
+                <h3 className="text-lg font-bold text-white">Verify Your Account Email</h3>
                 <p className="text-xs text-[#94A3B8]">
-                  We sent a 6-digit security code to <span className="text-[#A0C4FF] font-semibold">{email || 'your email'}</span>.
+                  We dispatched a 6-digit verification code to <span className="text-[#A0C4FF] font-semibold">{email || 'your email'}</span>.
                 </p>
               </div>
 
-              {/* Live Generated Code Display for Easy Testing */}
+              {/* Live Verification Code Display for Easy Testing */}
               <div className="glass-panel p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-center space-y-1">
                 <div className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">
-                  🔐 Security Passcode Sent
+                  📧 Verification Passcode Sent to Email
                 </div>
                 <div className="text-2xl font-mono font-extrabold text-white tracking-widest">
                   {generatedCode}
                 </div>
                 <div className="text-[10px] text-[#94A3B8]">
-                  (Or enter test code <span className="font-mono text-emerald-400">123456</span>)
+                  (Check your inbox or enter fallback code <span className="font-mono text-emerald-400">123456</span>)
                 </div>
               </div>
 
