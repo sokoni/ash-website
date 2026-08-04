@@ -44,7 +44,7 @@ export default function Navbar({
               BLACKLINE
             </div>
             <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1">
-              <span>Creative</span><span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
+              <span>Creat<span className="pink-i">ı</span>ve</span><span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
             </div>
           </div>
         </div>

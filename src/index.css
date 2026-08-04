@@ -109,6 +109,25 @@
   color: #FFFFFF;
 }
 
+/* Matching Pink Brand Dot for the letter 'i' (matches period dots) */
+.pink-i {
+  position: relative;
+  display: inline-block;
+}
+
+.pink-i::after {
+  content: '';
+  position: absolute;
+  top: 0.16em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.22em;
+  height: 0.22em;
+  background-color: #FF2ED4;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 46, 212, 0.9);
+}
+
 /* Background Ambient Orbs */
 .bg-orb-blue {
   position: absolute;

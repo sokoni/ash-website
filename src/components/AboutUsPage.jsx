@@ -85,7 +85,7 @@ export default function AboutUsPage({ onBookConsultation }) {
         {/* CTA Footer Banner */}
         <div className="pt-6 border-t border-[#A0C4FF]/15 text-center space-y-4">
           <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-            Let's Build Something <br />
+            Let's Bu<span className="pink-i">ı</span>ld Someth<span className="pink-i">ı</span>ng <br />
             <span className="pastel-glow-text">People Remember.</span>
           </h3>
           <p className="text-xs sm:text-sm text-[#94A3B8] max-w-xl mx-auto leading-relaxed">

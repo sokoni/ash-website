@@ -20,7 +20,7 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
 
           {/* Main Title matching brand identity */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
-            <span className="text-[#30BBFF]">Build Brands</span> <br />
+            <span className="text-[#30BBFF]">Bu<span className="pink-i">ı</span>ld Brands</span> <br />
             <span className="text-white">That Get Found<span className="text-[#FF2ED4] inline-block animate-pulse">.</span></span>
           </h1>
 
