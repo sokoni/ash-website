@@ -11,6 +11,7 @@ import BlackLineTheory from './components/BlackLineTheory';
 import ServicesPage from './components/ServicesPage';
 import ProjectsPage from './components/ProjectsPage';
 import AboutUsPage from './components/AboutUsPage';
+import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import { apiGetConsultations } from './api';
 
@@ -127,7 +128,7 @@ export default function App() {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               onViewPricing={() => setActiveTab('pricing')}
-              onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: '1-on-1 Strategy Consultation' })}
+              onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: 'Start My Project Consultation' })}
             />
             <WebsiteCatalog
               onSelectPreview={(site) => setPreviewTemplate(site)}
@@ -180,6 +181,11 @@ export default function App() {
             purchases={purchases}
             onSelectMarketplace={() => setActiveTab('marketplace')}
           />
+        )}
+
+        {/* Global Contact Section */}
+        {activeTab !== 'dashboard' && (
+          <ContactSection onBookConsultation={(target) => setBuyTarget(target)} />
         )}
 
       </main>

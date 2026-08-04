@@ -84,16 +84,16 @@ export default function AboutUsPage({ onBookConsultation }) {
 
         {/* CTA Footer Banner */}
         <div className="pt-6 border-t border-[#A0C4FF]/15 text-center space-y-4">
-          <h3 className="text-xl font-bold text-white">Let's Build Something Exceptional Together</h3>
-          <p className="text-xs text-[#94A3B8] max-w-xl mx-auto">
-            Book a complimentary 1-on-1 Strategy Consultation to discuss your vision, review technical requirements, and receive a custom roadmap.
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white">Let's Build Something <span className="pastel-glow-text">People Remember.</span></h3>
+          <p className="text-xs sm:text-sm text-[#94A3B8] max-w-xl mx-auto leading-relaxed">
+            Whether you're launching a startup, modernizing your business, or looking to dominate search, BlackLine Creative is ready to help.
           </p>
           <button
-            onClick={() => onBookConsultation && onBookConsultation({ id: 'about-consult', name: '1-on-1 Strategy Consultation' })}
-            className="btn-pastel-primary px-8 py-3.5 rounded-xl text-xs font-bold inline-flex items-center gap-2"
+            onClick={() => onBookConsultation && onBookConsultation({ id: 'about-consult', name: 'Start My Project Consultation' })}
+            className="btn-pastel-primary px-8 py-3.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-lg"
           >
             <Sparkles className="w-4 h-4 text-[#070A0F]" />
-            <span>Book Free Strategy Consultation</span>
+            <span>Start My Project</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
