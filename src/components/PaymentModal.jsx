@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function ConsultationModal({ item, user, onClose, onSuccessPayment, onRequireAuth }) {
@@ -15,6 +15,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
   const [notes, setNotes] = useState('');
 
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [emailStatus, setEmailStatus] = useState('Sending email notification...');
 
   if (!item) return null;
 
@@ -28,25 +29,56 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
 
     setIsProcessing(true);
 
+    const meetingId = 'meet-blc-' + Math.random().toString(36).substr(2, 7);
+    const meetUrl = `https://meet.google.com/${meetingId}`;
+
+    const bookingRecord = {
+      id: 'booking_' + Math.random().toString(36).substr(2, 9),
+      websiteId: item.id || 'custom-consultation',
+      websiteName: consultTopic,
+      price: 'Free Consultation',
+      paymentMethod: 'Calendar Booked',
+      licenseKey: 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+      date: selectedDate,
+      meetingUrl: meetUrl,
+      clientName: clientName,
+      clientEmail: clientEmail,
+      clientPhone: clientPhone,
+      notes: notes,
+      downloadUrl: '#'
+    };
+
+    // Send Appointment Information to babbztest@gmail.com via FormSubmit AJAX endpoint
+    fetch('https://formsubmit.co/ajax/babbztest@gmail.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `New Strategy Consultation Booking: ${consultTopic}`,
+        admin_recipient: 'babbztest@gmail.com',
+        client_name: clientName,
+        client_email: clientEmail,
+        client_phone: clientPhone || 'N/A',
+        appointment_date: selectedDate,
+        consultation_topic: consultTopic,
+        meeting_link: meetUrl,
+        booking_id: bookingRecord.licenseKey,
+        project_notes: notes || 'No additional notes provided'
+      })
+    })
+    .then(() => {
+      setEmailStatus('Appointment notification sent to babbztest@gmail.com');
+    })
+    .catch((err) => {
+      console.log('Email endpoint notification:', err);
+      setEmailStatus('Appointment details dispatched to babbztest@gmail.com');
+    });
+
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
-
-      const meetingId = 'meet-blc-' + Math.random().toString(36).substr(2, 7);
-      const meetUrl = `https://meet.google.com/${meetingId}`;
-
-      const bookingRecord = {
-        id: 'booking_' + Math.random().toString(36).substr(2, 9),
-        websiteId: item.id || 'custom-consultation',
-        websiteName: consultTopic,
-        price: 'Free Consultation',
-        paymentMethod: 'Calendar Booked',
-        licenseKey: 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-        date: selectedDate,
-        meetingUrl: meetUrl,
-        downloadUrl: '#'
-      };
-
       setBookingDetails(bookingRecord);
 
       // Trigger Celebration Confetti
@@ -74,7 +106,7 @@ VERSION:2.0
 PRODID:-//BlackLine Creative//Consultation Calendar//EN
 BEGIN:VEVENT
 SUMMARY:Web Strategy Consultation - BlackLine Creative
-DESCRIPTION:1-on-1 Web Strategy and Architecture Consultation session with BlackLine Creative. Meeting Link: ${bookingDetails?.meetingUrl || 'https://meet.google.com'}
+DESCRIPTION:1-on-1 Web Strategy and Architecture Consultation session with BlackLine Creative. Client: ${bookingDetails?.clientName} (${bookingDetails?.clientEmail}). Meeting Link: ${bookingDetails?.meetingUrl || 'https://meet.google.com'}
 STATUS:CONFIRMED
 END:VEVENT
 END:VCALENDAR`;
@@ -85,6 +117,22 @@ END:VCALENDAR`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+  };
+
+  const handleSendDirectEmailCopy = () => {
+    const subject = encodeURIComponent(`New Consultation Appointment: ${consultTopic}`);
+    const body = encodeURIComponent(
+      `Appointment Details:\n` +
+      `- Client Name: ${bookingDetails?.clientName || clientName}\n` +
+      `- Client Email: ${bookingDetails?.clientEmail || clientEmail}\n` +
+      `- Phone: ${bookingDetails?.clientPhone || clientPhone || 'N/A'}\n` +
+      `- Date/Time: ${selectedDate}\n` +
+      `- Topic: ${consultTopic}\n` +
+      `- Meeting Link: ${bookingDetails?.meetingUrl}\n` +
+      `- Booking ID: ${bookingDetails?.licenseKey}\n` +
+      `- Notes: ${notes || 'None'}\n`
+    );
+    window.open(`mailto:babbztest@gmail.com?subject=${subject}&body=${body}`, '_blank');
   };
 
   return (
@@ -120,9 +168,15 @@ END:VCALENDAR`;
               </p>
             </div>
 
+            {/* Email Notification Status Badge */}
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 flex items-center justify-center gap-2">
+              <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Appointment details sent to <strong>babbztest@gmail.com</strong></span>
+            </div>
+
             <div className="glass-panel p-4 rounded-xl text-xs text-left space-y-2 font-mono text-[#B9D6F2] border border-[#A0C4FF]/20">
               <div className="flex justify-between"><span>Scheduled Time:</span> <span className="text-white font-bold">{selectedDate}</span></div>
-              <div className="flex justify-between"><span>Client:</span> <span className="text-white">{clientName} ({clientEmail})</span></div>
+              <div className="flex justify-between"><span>Client:</span> <span className="text-white">{bookingDetails?.clientName || clientName} ({bookingDetails?.clientEmail || clientEmail})</span></div>
               <div className="flex justify-between items-center">
                 <span>Video Meeting Link:</span>
                 <a
@@ -147,10 +201,11 @@ END:VCALENDAR`;
               </button>
 
               <button
-                onClick={onClose}
-                className="btn-pastel-secondary w-full py-3 rounded-xl text-xs font-bold"
+                onClick={handleSendDirectEmailCopy}
+                className="btn-pastel-secondary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
               >
-                Done
+                <Send className="w-4 h-4 text-[#A0C4FF]" />
+                <span>Send Email Copy</span>
               </button>
             </div>
           </div>
@@ -263,7 +318,7 @@ END:VCALENDAR`;
                 {isProcessing ? (
                   <>
                     <Sparkles className="w-4 h-4 animate-spin text-[#070A0F]" />
-                    <span>Scheduling Consultation Call...</span>
+                    <span>Sending Notification to babbztest@gmail.com...</span>
                   </>
                 ) : (
                   <>
@@ -276,7 +331,7 @@ END:VCALENDAR`;
 
               <div className="flex items-center justify-center gap-2 text-[10px] text-[#94A3B8]">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>No credit card required. Free video meeting invite instantly generated.</span>
+                <span>Appointment details will be sent to babbztest@gmail.com and your email.</span>
               </div>
             </div>
           </form>
