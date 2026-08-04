@@ -108,6 +108,22 @@ export async function apiGetConsultations(userEmail) {
 }
 
 /**
+ * Fetch currently reserved consultation slots to prevent double-booking
+ */
+export async function apiGetBookedSlots() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/consultations/booked-slots`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.bookedSlots || [];
+    }
+  } catch (err) {
+    console.log('Docker API server offline, fetching local slots:', err);
+  }
+  return [];
+}
+
+/**
  * Save new consultation booking to Docker API service
  */
 export async function apiSaveConsultation(bookingRecord) {
@@ -117,11 +133,18 @@ export async function apiSaveConsultation(bookingRecord) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bookingRecord)
     });
+    if (response.status === 409) {
+      const data = await response.json();
+      throw new Error(data.error || 'This consultation date and time slot is already booked.');
+    }
     if (response.ok) {
       const data = await response.json();
       return data.booking;
     }
   } catch (err) {
+    if (err.message && err.message.includes('already booked')) {
+      throw err;
+    }
     console.log('Docker API server offline, saved consultation to client session:', err);
   }
   return bookingRecord;

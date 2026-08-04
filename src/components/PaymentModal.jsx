@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Calendar, Clock, Video, CheckCircle2, Sparkles, User, Mail, Phone, FileText, ArrowRight, ShieldCheck, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { apiSaveConsultation } from '../api';
+import { apiSaveConsultation, apiGetBookedSlots } from '../api';
 
 export default function ConsultationModal({ item, user, onClose, onSuccessPayment, onRequireAuth }) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -15,6 +15,9 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
   const [clientPhone, setClientPhone] = useState('');
   const [notes, setNotes] = useState('');
   
+  // Real-Time Slot Locking & Double Booking Prevention
+  const [bookedSlots, setBookedSlots] = useState([]);
+  
   // Security & Anti-Spam State
   const [honeypot, setHoneypot] = useState('');
   const [formError, setFormError] = useState('');
@@ -22,6 +25,25 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
 
   const [bookingDetails, setBookingDetails] = useState(null);
   const [emailStatus, setEmailStatus] = useState('Sending email notification...');
+
+  // Fetch booked slots on modal mount
+  useEffect(() => {
+    apiGetBookedSlots().then(slots => {
+      if (slots && Array.isArray(slots)) {
+        setBookedSlots(slots);
+        // Auto-select first available slot
+        const availableSlots = [
+          'Tomorrow (10:00 AM EST)',
+          'In 2 Days (2:00 PM EST)',
+          'In 3 Days (4:30 PM EST)',
+          'In 4 Days (11:00 AM EST)'
+        ].filter(s => !slots.some(b => b.trim().toLowerCase() === s.trim().toLowerCase()));
+        if (availableSlots.length > 0) {
+          setSelectedDate(availableSlots[0]);
+        }
+      }
+    });
+  }, []);
 
   if (!item) return null;
 
@@ -45,6 +67,13 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+
+    // 1. Double-Booking Pre-Check
+    const isSlotBooked = bookedSlots.some(s => s && s.trim().toLowerCase() === selectedDate.trim().toLowerCase());
+    if (isSlotBooked) {
+      setFormError('This consultation time slot is already booked. Please choose an available time.');
+      return;
+    }
 
     // 1. Honeypot Anti-Bot Check
     if (honeypot) {
@@ -101,6 +130,12 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
 
     const meetingId = 'meet-blc-' + Math.random().toString(36).substr(2, 7);
     const meetUrl = `https://meet.google.com/${meetingId}`;
+    const targetEmail = import.meta.env.VITE_CONTACT_EMAIL || 'contact@blackline-creative.com';
+
+    // Construct Google Calendar Direct Invite URL for contact@blackline-creative.com
+    const googleCalTitle = `BlackLine Creative Consultation: ${cleanInput(consultTopic)}`;
+    const googleCalDetails = `Client: ${sanitizedName} (${sanitizedEmail})\nPhone: ${sanitizedPhone || 'N/A'}\nMeeting Link: ${meetUrl}\nNotes: ${sanitizedNotes || 'No notes'}`;
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(googleCalTitle)}&details=${encodeURIComponent(googleCalDetails)}&location=${encodeURIComponent(meetUrl)}&add=${encodeURIComponent(targetEmail + ',' + sanitizedEmail)}`;
 
     const bookingRecord = {
       id: 'booking_' + Math.random().toString(36).substr(2, 9),
@@ -111,6 +146,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       licenseKey: 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
       date: cleanInput(selectedDate),
       meetingUrl: meetUrl,
+      googleCalendarUrl: googleCalendarUrl,
       clientName: sanitizedName,
       clientEmail: sanitizedEmail,
       clientPhone: sanitizedPhone || 'N/A',
@@ -118,14 +154,17 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       downloadUrl: '#'
     };
 
-    // Save to Docker Container Backend API
-    apiSaveConsultation(bookingRecord).catch(() => {
-      console.log('API save fallback active');
-    });
+    // Save to Docker Container Backend API & Check Double-Booking 409 Conflict
+    try {
+      await apiSaveConsultation(bookingRecord);
+    } catch (err) {
+      setIsProcessing(false);
+      setFormError(err.message || 'This date/time slot was just booked. Please select another slot.');
+      apiGetBookedSlots().then(slots => setBookedSlots(slots || []));
+      return;
+    }
 
-    const targetEmail = import.meta.env.VITE_CONTACT_EMAIL || 'contact@blackline-creative.com';
-
-    // Send Appointment Information via FormSubmit AJAX endpoint
+    // Send Appointment & Google Calendar Event Link via FormSubmit AJAX endpoint
     fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
       method: 'POST',
       headers: {
@@ -135,6 +174,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       body: JSON.stringify({
         _subject: `New Strategy Consultation Booking: ${cleanInput(consultTopic)}`,
         admin_recipient: targetEmail,
+        google_calendar_invite: googleCalendarUrl,
         client_name: sanitizedName,
         client_email: sanitizedEmail,
         client_phone: sanitizedPhone || 'N/A',
@@ -146,7 +186,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       })
     })
     .then(() => {
-      setEmailStatus('Appointment notification sent to contact@blackline-creative.com');
+      setEmailStatus('Google Calendar invite dispatched to contact@blackline-creative.com');
     })
     .catch(() => {
       setEmailStatus('Appointment details dispatched to contact@blackline-creative.com');
@@ -156,6 +196,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       setIsProcessing(false);
       setIsSuccess(true);
       setBookingDetails(bookingRecord);
+      setBookedSlots(prev => [...prev, cleanInput(selectedDate)]);
       if (onSuccessPayment) {
         onSuccessPayment(bookingRecord);
       }
@@ -264,13 +305,26 @@ END:VCALENDAR`;
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <button
-                onClick={handleDownloadIcs}
-                className="btn-pastel-primary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Add to Calendar (.ics)</span>
-              </button>
+              {bookingDetails?.googleCalendarUrl ? (
+                <a
+                  href={bookingDetails.googleCalendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-pastel-primary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Add to Google Calendar</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              ) : (
+                <button
+                  onClick={handleDownloadIcs}
+                  className="btn-pastel-primary w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Add to Calendar (.ics)</span>
+                </button>
+              )}
 
               <button
                 onClick={onClose}
@@ -321,25 +375,33 @@ END:VCALENDAR`;
                 <Clock className="w-3.5 h-3.5 text-[#38BDF8]" />
                 Select Preferred Date & Time Slot
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
                   'Tomorrow (10:00 AM EST)',
                   'In 2 Days (2:00 PM EST)',
-                  'In 3 Days (4:30 PM EST)'
-                ].map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => setSelectedDate(slot)}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all ${
-                      selectedDate === slot
-                        ? 'bg-[#38BDF8]/20 border-[#38BDF8] text-white shadow-md'
-                        : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:text-white'
-                    }`}
-                  >
-                    {slot}
-                  </button>
-                ))}
+                  'In 3 Days (4:30 PM EST)',
+                  'In 4 Days (11:00 AM EST)'
+                ].map((slot) => {
+                  const isBooked = bookedSlots.some(b => b && b.trim().toLowerCase() === slot.trim().toLowerCase());
+                  return (
+                    <button
+                      key={slot}
+                      type="button"
+                      disabled={isBooked}
+                      onClick={() => setSelectedDate(slot)}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all ${
+                        isBooked
+                          ? 'bg-red-500/10 border-red-500/20 text-red-400/60 line-through cursor-not-allowed'
+                          : selectedDate === slot
+                          ? 'bg-[#38BDF8]/20 border-[#38BDF8] text-white shadow-md'
+                          : 'bg-[#070A0F] border-[#A0C4FF]/15 text-[#94A3B8] hover:text-white'
+                      }`}
+                    >
+                      <span>{slot}</span>
+                      {isBooked && <span className="block text-[10px] text-red-400 no-underline">(Reserved)</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

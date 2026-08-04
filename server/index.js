@@ -548,7 +548,15 @@ app.get('/api/consultations', (req, res) => {
   res.status(200).json({ consultations: filtered });
 });
 
-// ROUTE 6: POST /api/consultations (Rate Limited & Bot Shielded)
+// ROUTE 6b: GET /api/consultations/booked-slots (Real-time Slot Locking)
+app.get('/api/consultations/booked-slots', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
+  const db = loadDatabase();
+  const bookedSlots = db.consultations.map(c => c.date).filter(Boolean);
+  res.status(200).json({ bookedSlots });
+});
+
+// ROUTE 6: POST /api/consultations (Rate Limited, Bot Shielded, Double-Booking Protected)
 app.post('/api/consultations', (req, res) => {
   res.setHeader('Cache-Control', 'no-store, private');
   const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
@@ -578,8 +586,28 @@ app.post('/api/consultations', (req, res) => {
   const cleanName = sanitizeInput(booking.clientName).slice(0, 75) || 'Client';
   const cleanPhone = sanitizeInput(booking.clientPhone).slice(0, 25) || 'N/A';
   const cleanNotes = sanitizeInput(booking.notes).slice(0, 1000) || 'No notes';
+  const cleanDate = sanitizeInput(booking.date).trim() || 'Tomorrow (10:00 AM EST)';
 
   const db = loadDatabase();
+
+  // Double-Booking Protection: Prevent slot conflicts
+  const normalizedDate = cleanDate.toLowerCase();
+  const isAlreadyBooked = db.consultations.some(c => c.date && c.date.trim().toLowerCase() === normalizedDate);
+  if (isAlreadyBooked) {
+    logEvent('SECURITY_EVENT', 'WARN', `Double booking conflict blocked for slot: ${cleanDate}`, {}, req);
+    return res.status(409).json({
+      error: 'This consultation date and time slot is already booked. Please select a different time.'
+    });
+  }
+
+  const adminContactEmail = process.env.CONTACT_EMAIL || 'contact@blackline-creative.com';
+  const meetingUrl = sanitizeInput(booking.meetingUrl) || `https://meet.google.com/meet-blc-${Math.random().toString(36).substr(2, 7)}`;
+
+  // Construct Google Calendar Event URL for contact@blackline-creative.com
+  const googleCalTitle = `BlackLine Creative Consultation: ${cleanWebsiteName}`;
+  const googleCalDetails = `Client: ${cleanName} (${cleanEmail})\nPhone: ${cleanPhone}\nTopic: ${cleanWebsiteName}\nMeeting Link: ${meetingUrl}\nNotes: ${cleanNotes}`;
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(googleCalTitle)}&details=${encodeURIComponent(googleCalDetails)}&location=${encodeURIComponent(meetingUrl)}&add=${encodeURIComponent(adminContactEmail + ',' + cleanEmail)}`;
+
   const bookingRecord = {
     id: sanitizeInput(booking.id) || 'booking_' + Math.random().toString(36).substr(2, 9),
     websiteId: sanitizeInput(booking.websiteId) || 'custom-consultation',
@@ -587,8 +615,9 @@ app.post('/api/consultations', (req, res) => {
     price: 'Free Consultation',
     paymentMethod: 'Calendar Booked',
     licenseKey: sanitizeInput(booking.licenseKey) || 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-    date: sanitizeInput(booking.date) || 'Tomorrow (10:00 AM EST)',
-    meetingUrl: sanitizeInput(booking.meetingUrl) || `https://meet.google.com/meet-blc-${Math.random().toString(36).substr(2, 7)}`,
+    date: cleanDate,
+    meetingUrl: meetingUrl,
+    googleCalendarUrl: googleCalendarUrl,
     clientName: cleanName,
     clientEmail: cleanEmail,
     clientPhone: encryptSensitive(cleanPhone), // Encrypt at rest
@@ -613,9 +642,7 @@ app.post('/api/consultations', (req, res) => {
 
   saveDatabase(db);
 
-  const adminContactEmail = process.env.CONTACT_EMAIL || 'contact@blackline-creative.com';
-
-  // Forward notification payload to FormSubmit endpoint for configured contact email
+  // Forward notification payload with Google Calendar Event Link to contact@blackline-creative.com
   fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminContactEmail)}`, {
     method: 'POST',
     headers: {
@@ -623,16 +650,17 @@ app.post('/api/consultations', (req, res) => {
       'Accept': 'application/json'
     },
     body: JSON.stringify({
-      _subject: `Container Event: New Consultation (${bookingRecord.websiteName})`,
+      _subject: `New Google Calendar Consultation (${bookingRecord.websiteName})`,
       admin_recipient: adminContactEmail,
+      google_calendar_invite: googleCalendarUrl,
       client_name: bookingRecord.clientName,
       client_email: bookingRecord.clientEmail,
-      client_phone: bookingRecord.clientPhone,
+      client_phone: cleanPhone,
       appointment_date: bookingRecord.date,
       consultation_topic: bookingRecord.websiteName,
       meeting_link: bookingRecord.meetingUrl,
       booking_id: bookingRecord.licenseKey,
-      notes: bookingRecord.notes
+      notes: cleanNotes
     })
   }).catch(() => {});
 
