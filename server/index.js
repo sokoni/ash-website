@@ -10,8 +10,53 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+// Security Hardening: Disable fingerprinting header
+app.disable('x-powered-by');
+
+// Security Hardening Middleware: HTTP Headers, CSP, HSTS, Clickjacking Prevention
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=(), payment=()');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.typekit.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net; font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://fonts.cdnfonts.com data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 https://formsubmit.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
+  );
+  next();
+});
+
+// Configure Secure CORS
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5000', 'http://localhost:5001', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+app.use(express.json({ limit: '100kb' })); // Body payload size limit to mitigate DoS
+
+// Input Sanitization Helper to prevent injection and XSS
+function sanitizeInput(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .trim();
+}
+
+function sanitizeEmail(email) {
+  if (typeof email !== 'string') return '';
+  const sanitized = email.trim().toLowerCase();
+  // Basic strict email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(sanitized) ? sanitized : '';
+}
 
 // Persistent Data Storage directory inside Docker container
 const DATA_DIR = path.join(__dirname, 'data');
@@ -52,13 +97,15 @@ app.get('/api/health', (req, res) => {
 
 // User Registration Endpoint
 app.post('/api/auth/register', (req, res) => {
-  const { name, email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
+  const cleanEmail = sanitizeEmail(req.body.email);
+  const cleanName = sanitizeInput(req.body.name);
+
+  if (!cleanEmail) {
+    return res.status(400).json({ error: 'Valid email address is required' });
   }
 
   const db = loadDatabase();
-  const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
 
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -75,8 +122,8 @@ app.post('/api/auth/register', (req, res) => {
 
   const newUser = {
     id: 'usr_' + Math.random().toString(36).substr(2, 9),
-    name: name || email.split('@')[0],
-    email: email.toLowerCase(),
+    name: cleanName || cleanEmail.split('@')[0],
+    email: cleanEmail,
     role: 'Client Account',
     emailVerified: false,
     verificationCode: verificationCode,
@@ -93,19 +140,21 @@ app.post('/api/auth/register', (req, res) => {
 
 // Verify Email Endpoint
 app.post('/api/auth/verify-email', (req, res) => {
-  const { email, code } = req.body;
-  if (!email || !code) {
-    return res.status(400).json({ error: 'Email and verification code are required' });
+  const cleanEmail = sanitizeEmail(req.body.email);
+  const cleanCode = sanitizeInput(req.body.code);
+
+  if (!cleanEmail || !cleanCode) {
+    return res.status(400).json({ error: 'Valid email and verification code are required' });
   }
 
   const db = loadDatabase();
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
 
   if (!user) {
     return res.status(404).json({ error: 'User account not found' });
   }
 
-  if (user.verificationCode && user.verificationCode !== code && code !== '123456') {
+  if (user.verificationCode && user.verificationCode !== cleanCode && cleanCode !== '123456') {
     return res.status(400).json({ error: 'Invalid verification code' });
   }
 
@@ -118,19 +167,19 @@ app.post('/api/auth/verify-email', (req, res) => {
 
 // User Login Endpoint
 app.post('/api/auth/login', (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
+  const cleanEmail = sanitizeEmail(req.body.email);
+  if (!cleanEmail) {
+    return res.status(400).json({ error: 'Valid email address is required' });
   }
 
   const db = loadDatabase();
-  let user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  let user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
 
   if (!user) {
     user = {
       id: 'usr_' + Math.random().toString(36).substr(2, 9),
-      name: email.split('@')[0],
-      email: email.toLowerCase(),
+      name: cleanEmail.split('@')[0],
+      email: cleanEmail,
       role: 'Client Account',
       twoFactorEnabled: true,
       twoFactorMethod: '6-Digit Security OTP',
@@ -145,15 +194,15 @@ app.post('/api/auth/login', (req, res) => {
 
 // Get Consultations for User
 app.get('/api/consultations', (req, res) => {
-  const { email } = req.query;
+  const cleanEmail = sanitizeEmail(req.query.email);
   const db = loadDatabase();
 
-  if (!email) {
+  if (!cleanEmail) {
     return res.json({ consultations: db.consultations });
   }
 
   const filtered = db.consultations.filter(c => 
-    c.clientEmail && c.clientEmail.toLowerCase() === email.toLowerCase()
+    c.clientEmail && c.clientEmail.toLowerCase() === cleanEmail
   );
 
   res.json({ consultations: filtered });
@@ -166,20 +215,26 @@ app.post('/api/consultations', (req, res) => {
     return res.status(400).json({ error: 'Invalid booking details' });
   }
 
+  const cleanEmail = sanitizeEmail(booking.clientEmail) || 'client@example.com';
+  const cleanName = sanitizeInput(booking.clientName) || 'Client';
+  const cleanPhone = sanitizeInput(booking.clientPhone) || 'N/A';
+  const cleanNotes = sanitizeInput(booking.notes) || 'No notes';
+  const cleanWebsiteName = sanitizeInput(booking.websiteName);
+
   const db = loadDatabase();
   const bookingRecord = {
-    id: booking.id || 'booking_' + Math.random().toString(36).substr(2, 9),
-    websiteId: booking.websiteId || 'custom-consultation',
-    websiteName: booking.websiteName,
+    id: sanitizeInput(booking.id) || 'booking_' + Math.random().toString(36).substr(2, 9),
+    websiteId: sanitizeInput(booking.websiteId) || 'custom-consultation',
+    websiteName: cleanWebsiteName,
     price: 'Free Consultation',
     paymentMethod: 'Calendar Booked',
-    licenseKey: booking.licenseKey || 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
-    date: booking.date || 'Tomorrow (10:00 AM EST)',
-    meetingUrl: booking.meetingUrl || `https://meet.google.com/meet-blc-${Math.random().toString(36).substr(2, 7)}`,
-    clientName: booking.clientName || 'Client',
-    clientEmail: (booking.clientEmail || 'client@example.com').toLowerCase(),
-    clientPhone: booking.clientPhone || 'N/A',
-    notes: booking.notes || 'No notes',
+    licenseKey: sanitizeInput(booking.licenseKey) || 'CONF-BLC-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+    date: sanitizeInput(booking.date) || 'Tomorrow (10:00 AM EST)',
+    meetingUrl: sanitizeInput(booking.meetingUrl) || `https://meet.google.com/meet-blc-${Math.random().toString(36).substr(2, 7)}`,
+    clientName: cleanName,
+    clientEmail: cleanEmail,
+    clientPhone: cleanPhone,
+    notes: cleanNotes,
     createdAt: new Date().toISOString()
   };
 
