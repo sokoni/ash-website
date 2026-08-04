@@ -118,7 +118,7 @@
 .pink-i::after {
   content: '';
   position: absolute;
-  top: 0.16em;
+  top: 0.02em;
   left: 50%;
   transform: translateX(-50%);
   width: 0.22em;
