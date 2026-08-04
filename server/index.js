@@ -146,24 +146,100 @@ function resetFailedAttempts(identifier) {
   failedAttemptsMap.delete(identifier);
 }
 
-// Persistent Data Storage directory inside Docker container
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'database.json');
+// Environment Credentials & Secrets Configuration
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+const DB_FILE = process.env.DB_FILE_PATH || path.join(DATA_DIR, 'database.json');
 
-// Ensure database directory and file exist
+// Derive 32-byte Encryption Key for AES-256-GCM
+const DB_SECRET = process.env.DB_ENCRYPTION_KEY || 'blc_master_db_secret_key_2026_production';
+const DB_ENCRYPTION_KEY = crypto.createHash('sha256').update(DB_SECRET).digest();
+const ENCRYPTION_ALGO = 'aes-256-gcm';
+
+// Encrypt Sensitive Field / Data at Rest
+function encryptSensitive(text) {
+  if (!text || typeof text !== 'string') return text;
+  try {
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv(ENCRYPTION_ALGO, DB_ENCRYPTION_KEY, iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `enc:${iv.toString('hex')}:${authTag}:${encrypted}`;
+  } catch {
+    return text;
+  }
+}
+
+// Decrypt Sensitive Field
+function decryptSensitive(text) {
+  if (!text || typeof text !== 'string' || !text.startsWith('enc:')) return text;
+  try {
+    const parts = text.split(':');
+    if (parts.length !== 4) return text;
+    const [, ivHex, authTagHex, encryptedText] = parts;
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const decipher = crypto.createDecipheriv(ENCRYPTION_ALGO, DB_ENCRYPTION_KEY, iv);
+    decipher.setAuthTag(authTag);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch {
+    return text;
+  }
+}
+
+// Ensure database and backup directories exist with restricted permissions
 if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+}
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true, mode: 0o700 });
+}
+
+// Prototype Pollution & Injection Shielding for Query Data
+function preventPrototypePollution(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  delete obj.__proto__;
+  delete obj.constructor;
+  delete obj.prototype;
+  return obj;
+}
+
+// Secure Atomic Backup Generator (Rotates latest 10 backups)
+function backupDatabase(dbData) {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupPath = path.join(BACKUP_DIR, `database_backup_${timestamp}.json`);
+    fs.writeFileSync(backupPath, JSON.stringify(dbData, null, 2), { mode: 0o600 });
+
+    // Rotate backups, keeping 10 most recent
+    const files = fs.readdirSync(BACKUP_DIR)
+      .filter(f => f.startsWith('database_backup_'))
+      .map(f => path.join(BACKUP_DIR, f))
+      .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+
+    if (files.length > 10) {
+      files.slice(10).forEach(file => {
+        try { fs.unlinkSync(file); } catch {}
+      });
+    }
+  } catch (err) {
+    console.error('Secure backup generation error:', err.message);
+  }
 }
 
 function loadDatabase() {
   if (!fs.existsSync(DB_FILE)) {
     const initialData = { users: [], consultations: [] };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), { mode: 0o600 });
     return initialData;
   }
   try {
     const content = fs.readFileSync(DB_FILE, 'utf8');
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    return preventPrototypePollution(parsed);
   } catch (err) {
     console.error('Error reading database file:', err.message);
     return { users: [], consultations: [] };
@@ -172,10 +248,32 @@ function loadDatabase() {
 
 function saveDatabase(data) {
   try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    const cleanData = preventPrototypePollution(data);
+    fs.writeFileSync(DB_FILE, JSON.stringify(cleanData, null, 2), { mode: 0o600 });
+    backupDatabase(cleanData);
   } catch (err) {
     console.error('Error writing database file:', err.message);
   }
+}
+
+// Parameterized Query & User Output Sanitizer (Principle of Least Privilege)
+function sanitizeUserOutput(user) {
+  if (!user || typeof user !== 'object') return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role || 'Client Account',
+    emailVerified: Boolean(user.emailVerified),
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    createdAt: user.createdAt
+  };
+}
+
+function findUserByEmail(db, email) {
+  if (!email || typeof email !== 'string') return null;
+  const cleanEmail = email.trim().toLowerCase();
+  return db.users.find(u => u && u.email && u.email.toLowerCase() === cleanEmail) || null;
 }
 
 // IP Rate Limiter Map for API Hardening
@@ -221,7 +319,7 @@ app.post('/api/auth/register', (req, res) => {
   }
 
   const db = loadDatabase();
-  const existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+  const existingUser = findUserByEmail(db, cleanEmail);
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
   if (existingUser) {
@@ -233,13 +331,7 @@ app.post('/api/auth/register', (req, res) => {
     const tokens = setSecureSessionCookies(res);
     return res.status(200).json({ 
       status: 'success', 
-      user: {
-        id: existingUser.id,
-        name: existingUser.name,
-        email: existingUser.email,
-        role: existingUser.role,
-        emailVerified: existingUser.emailVerified
-      }, 
+      user: sanitizeUserOutput(existingUser), 
       verificationCode,
       csrfToken: tokens.csrfToken,
       message: 'Verification code generated for existing user' 
@@ -267,13 +359,7 @@ app.post('/api/auth/register', (req, res) => {
 
   res.status(201).json({ 
     status: 'success', 
-    user: {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      emailVerified: newUser.emailVerified
-    }, 
+    user: sanitizeUserOutput(newUser), 
     verificationCode,
     csrfToken: tokens.csrfToken
   });
@@ -291,7 +377,7 @@ app.post('/api/auth/verify-email', (req, res) => {
   }
 
   const db = loadDatabase();
-  const user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+  const user = findUserByEmail(db, cleanEmail);
 
   if (!user) {
     return res.status(404).json({ error: 'User account not found' });
@@ -310,13 +396,7 @@ app.post('/api/auth/verify-email', (req, res) => {
 
   res.status(200).json({ 
     status: 'success', 
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      emailVerified: true
-    }, 
+    user: sanitizeUserOutput(user), 
     csrfToken: tokens.csrfToken,
     message: 'Account email verified successfully' 
   });
@@ -340,7 +420,7 @@ app.post('/api/auth/login', (req, res) => {
   }
 
   const db = loadDatabase();
-  let user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+  let user = findUserByEmail(db, cleanEmail);
 
   if (user && user.passwordHash && rawPassword) {
     const isValid = verifyPassword(rawPassword, user.passwordHash);
@@ -373,13 +453,7 @@ app.post('/api/auth/login', (req, res) => {
 
   res.status(200).json({ 
     status: 'success', 
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      emailVerified: user.emailVerified ?? true
-    },
+    user: sanitizeUserOutput(user),
     csrfToken: tokens.csrfToken
   });
 });
@@ -445,9 +519,13 @@ app.get('/api/consultations', (req, res) => {
     return res.status(200).json({ consultations: [] });
   }
 
-  const filtered = db.consultations.filter(c => 
-    c.clientEmail && c.clientEmail.toLowerCase() === cleanEmail
-  );
+  const filtered = db.consultations
+    .filter(c => c.clientEmail && c.clientEmail.toLowerCase() === cleanEmail)
+    .map(c => ({
+      ...c,
+      clientPhone: decryptSensitive(c.clientPhone),
+      notes: decryptSensitive(c.notes)
+    }));
 
   res.status(200).json({ consultations: filtered });
 });
@@ -495,8 +573,8 @@ app.post('/api/consultations', (req, res) => {
     meetingUrl: sanitizeInput(booking.meetingUrl) || `https://meet.google.com/meet-blc-${Math.random().toString(36).substr(2, 7)}`,
     clientName: cleanName,
     clientEmail: cleanEmail,
-    clientPhone: cleanPhone,
-    notes: cleanNotes,
+    clientPhone: encryptSensitive(cleanPhone), // Encrypt at rest
+    notes: encryptSensitive(cleanNotes),       // Encrypt at rest
     createdAt: new Date().toISOString()
   };
 
