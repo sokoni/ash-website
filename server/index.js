@@ -595,8 +595,10 @@ app.post('/api/consultations', (req, res) => {
 
   saveDatabase(db);
 
-  // Forward notification payload to FormSubmit endpoint for contact@blackline-creative.com
-  fetch('https://formsubmit.co/ajax/contact@blackline-creative.com', {
+  const adminContactEmail = process.env.CONTACT_EMAIL || 'contact@blackline-creative.com';
+
+  // Forward notification payload to FormSubmit endpoint for configured contact email
+  fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminContactEmail)}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -604,7 +606,7 @@ app.post('/api/consultations', (req, res) => {
     },
     body: JSON.stringify({
       _subject: `Container Event: New Consultation (${bookingRecord.websiteName})`,
-      admin_recipient: 'contact@blackline-creative.com',
+      admin_recipient: adminContactEmail,
       client_name: bookingRecord.clientName,
       client_email: bookingRecord.clientEmail,
       client_phone: bookingRecord.clientPhone,

@@ -123,8 +123,10 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       console.log('API save fallback active');
     });
 
-    // Send Appointment Information to contact@blackline-creative.com via FormSubmit AJAX endpoint
-    fetch('https://formsubmit.co/ajax/contact@blackline-creative.com', {
+    const targetEmail = import.meta.env.VITE_CONTACT_EMAIL || 'contact@blackline-creative.com';
+
+    // Send Appointment Information via FormSubmit AJAX endpoint
+    fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -132,7 +134,7 @@ export default function ConsultationModal({ item, user, onClose, onSuccessPaymen
       },
       body: JSON.stringify({
         _subject: `New Strategy Consultation Booking: ${cleanInput(consultTopic)}`,
-        admin_recipient: 'contact@blackline-creative.com',
+        admin_recipient: targetEmail,
         client_name: sanitizedName,
         client_email: sanitizedEmail,
         client_phone: sanitizedPhone || 'N/A',
