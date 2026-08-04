@@ -40,10 +40,10 @@ export default function Navbar({
             </div>
           </div>
           <div className="flex flex-col leading-none">
-            <div className="font-extrabold text-base sm:text-lg tracking-widest text-white uppercase relative pb-1 border-b-2 border-[#30BBFF]" style={{ fontFamily: 'var(--font-heading)' }}>
+            <div className="font-extrabold text-base sm:text-lg tracking-widest text-white uppercase relative pb-1 border-b-2 border-[#30BBFF]">
               BLACKLINE
             </div>
-            <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1" style={{ fontFamily: 'var(--font-heading)' }}>
+            <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1">
               <span>Creative</span><span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
             </div>
           </div>

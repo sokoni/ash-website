@@ -18,8 +18,8 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] animate-ping" />
           </div>
 
-          {/* Main Title matching exact brand identity font */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] font-heading" style={{ fontFamily: 'var(--font-heading)' }}>
+          {/* Main Title matching brand identity */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
             <span className="text-[#30BBFF]">Build Brands</span> <br />
             <span className="text-white">That Get Found<span className="text-[#FF2ED4] inline-block animate-pulse">.</span></span>
           </h1>
