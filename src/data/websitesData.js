@@ -44,30 +44,43 @@ export const WEBSITE_TEMPLATES = [
     image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80"
   },
   {
-    id: "web-novacommerce",
-    name: "NovaCommerce Storefront",
-    tagline: "Ultra-Fast E-Commerce Shop & Custom Product Showcase",
-    category: "E-Commerce",
-    rating: 4.8,
-    reviewsCount: 36,
-    techStack: ["React", "Tailwind CSS", "Context API", "Lucide Icons"],
-    features: [
-      "Slide-over Shopping Cart Architecture",
-      "Search & Category Filtering",
-      "Product Gallery & Custom Layouts",
-      "Multi-Currency Toggle Support",
-      "Custom Gateway Integration Scope"
+    id: "d-johnson-funeral-services",
+    name: "D. Johnson Funeral Services",
+    tagline: "Compassionate Digital Experience & Brand Elevation",
+    category: "Funeral Services",
+    role: "Brand & Web Strategist",
+    rating: 4.9,
+    reviewsCount: 42,
+    challenge: "Create a modern digital experience reflecting compassion, professionalism, and trust.",
+    servicesProvided: [
+      "Website Strategy",
+      "Website Design",
+      "Content Strategy",
+      "Brand Messaging",
+      "Gallery Organization",
+      "Contact Experience",
+      "Social Assets"
     ],
-    description: "Build a bespoke online brand. Schedule a consultation to discuss product catalog strategy, checkout flow optimizations, and custom payment integrations.",
-    previewUrl: "https://example.com/preview/novacommerce",
-    bgGradient: "from-sky-900/40 to-slate-900/60",
-    badge: "E-Commerce Scope",
-    badgeColor: "bg-sky-500/20 text-sky-300 border-sky-500/30",
-    image: "https://images.unsplash.com/photo-1556742049-0a6756595316?auto=format&fit=crop&w=800&q=80",
-    demoCode: `// Consultation Project Scope
-export function CartDrawer({ items }) {
-  return items.map(item => <div key={item.id}>{item.name}</div>);
-}`
+    impact: [
+      "Stronger online presence reflecting core values",
+      "Improved site usability and client trust",
+      "Streamlined family contact & consultation booking",
+      "Enhanced digital brand credibility"
+    ],
+    techStack: ["Website Strategy", "Website Design", "Brand Messaging", "Content Strategy"],
+    features: [
+      "Website Strategy",
+      "Website Design",
+      "Content Strategy",
+      "Brand Messaging",
+      "Contact Experience"
+    ],
+    description: "Create a modern digital experience reflecting compassion, professionalism, and trust.",
+    previewUrl: "https://example.com/preview/d-johnson-funeral-services",
+    bgGradient: "from-[#0E1420] to-[#070A0F]",
+    badge: "Case Study",
+    badgeColor: "bg-[#A0C4FF]/20 text-[#A0C4FF] border-[#A0C4FF]/30",
+    image: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: "web-aura-portfolio",
