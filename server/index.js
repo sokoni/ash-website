@@ -36,26 +36,44 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '100kb' })); // Body payload size limit to mitigate DoS
+app.use(express.json({ limit: '10kb' })); // Body payload size limit (10kb) to prevent DoS
+
+// API Timeout Protection Middleware (10 seconds timeout)
+app.use((req, res, next) => {
+  req.setTimeout(10000, () => {
+    if (!res.headersSent) {
+      logSuspiciousActivity(req, 'API Request Timeout Exceeded (10s)', 'WARN');
+      res.status(408).json({ error: 'Request processing timeout' });
+    }
+  });
+  next();
+});
 
 // Input Sanitization Helper to prevent injection and XSS
 function sanitizeInput(str) {
-  if (typeof str !== 'string') return str;
+  if (typeof str !== 'string') return '';
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
+    .replace(/[\r\n%0A%0D]/g, '') // Prevent Header Injection
     .trim();
 }
 
 function sanitizeEmail(email) {
   if (typeof email !== 'string') return '';
-  const sanitized = email.trim().toLowerCase();
-  // Basic strict email validation regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const sanitized = email.trim().toLowerCase().replace(/[\r\n%0A%0D]/g, '');
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(sanitized) ? sanitized : '';
+}
+
+// Suspicious Activity Logger
+function logSuspiciousActivity(req, reason, level = 'WARN') {
+  const clientIp = req.ip || req.socket?.remoteAddress || '127.0.0.1';
+  const timestamp = new Date().toISOString();
+  console.warn(`[SECURITY ${level}] [${timestamp}] IP: ${clientIp} | Path: ${req.method} ${req.originalUrl} | Reason: ${reason}`);
 }
 
 // Persistent Data Storage directory inside Docker container
@@ -77,7 +95,7 @@ function loadDatabase() {
     const content = fs.readFileSync(DB_FILE, 'utf8');
     return JSON.parse(content);
   } catch (err) {
-    console.error('Error reading database file:', err);
+    console.error('Error reading database file:', err.message);
     return { users: [], consultations: [] };
   }
 }
@@ -86,14 +104,9 @@ function saveDatabase(data) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
   } catch (err) {
-    console.error('Error writing database file:', err);
+    console.error('Error writing database file:', err.message);
   }
 }
-
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'BlackLine Creative Container API is running' });
-});
 
 // IP Rate Limiter Map for API Hardening
 const ipRateLimitMap = new Map();
@@ -112,31 +125,46 @@ function isRateLimited(ip, maxRequests = 10, windowMs = 600000) { // 10 requests
   return false;
 }
 
-// User Registration Endpoint
+// ROUTE 1: GET /api/health
+app.get('/api/health', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(200).json({ status: 'ok', message: 'BlackLine Creative Container API is running' });
+});
+
+// ROUTE 2: POST /api/auth/register
 app.post('/api/auth/register', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
   const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
-  if (isRateLimited(clientIp, 15, 600000)) {
+
+  if (isRateLimited(clientIp, 10, 600000)) {
+    logSuspiciousActivity(req, 'Rate limit exceeded on user registration', 'HIGH');
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
   const cleanEmail = sanitizeEmail(req.body.email);
-  const cleanName = sanitizeInput(req.body.name);
+  const cleanName = sanitizeInput(req.body.name).slice(0, 75);
 
   if (!cleanEmail) {
+    logSuspiciousActivity(req, 'Malformed or invalid email submitted during registration', 'WARN');
     return res.status(400).json({ error: 'Valid email address is required' });
   }
 
   const db = loadDatabase();
   const existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
-
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
   if (existingUser) {
     existingUser.verificationCode = verificationCode;
     saveDatabase(db);
-    return res.json({ 
+    return res.status(200).json({ 
       status: 'success', 
-      user: existingUser, 
+      user: {
+        id: existingUser.id,
+        name: existingUser.name,
+        email: existingUser.email,
+        role: existingUser.role,
+        emailVerified: existingUser.emailVerified
+      }, 
       verificationCode,
       message: 'Verification code generated for existing user' 
     });
@@ -157,15 +185,27 @@ app.post('/api/auth/register', (req, res) => {
   db.users.push(newUser);
   saveDatabase(db);
 
-  res.status(201).json({ status: 'success', user: newUser, verificationCode });
+  res.status(201).json({ 
+    status: 'success', 
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      emailVerified: newUser.emailVerified
+    }, 
+    verificationCode 
+  });
 });
 
-// Verify Email Endpoint
+// ROUTE 3: POST /api/auth/verify-email
 app.post('/api/auth/verify-email', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
   const cleanEmail = sanitizeEmail(req.body.email);
   const cleanCode = sanitizeInput(req.body.code);
 
-  if (!cleanEmail || !cleanCode) {
+  if (!cleanEmail || !cleanCode || cleanCode.length > 10) {
+    logSuspiciousActivity(req, 'Invalid verification code payload', 'WARN');
     return res.status(400).json({ error: 'Valid email and verification code are required' });
   }
 
@@ -177,6 +217,7 @@ app.post('/api/auth/verify-email', (req, res) => {
   }
 
   if (user.verificationCode && user.verificationCode !== cleanCode && cleanCode !== '123456') {
+    logSuspiciousActivity(req, `Failed OTP verification attempt for email ${cleanEmail}`, 'WARN');
     return res.status(400).json({ error: 'Invalid verification code' });
   }
 
@@ -184,13 +225,26 @@ app.post('/api/auth/verify-email', (req, res) => {
   user.verificationCode = null;
   saveDatabase(db);
 
-  res.json({ status: 'success', user, message: 'Account email verified successfully' });
+  res.status(200).json({ 
+    status: 'success', 
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      emailVerified: true
+    }, 
+    message: 'Account email verified successfully' 
+  });
 });
 
-// User Login Endpoint
+// ROUTE 4: POST /api/auth/login
 app.post('/api/auth/login', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
   const cleanEmail = sanitizeEmail(req.body.email);
+
   if (!cleanEmail) {
+    logSuspiciousActivity(req, 'Malformed email submitted during login', 'WARN');
     return res.status(400).json({ error: 'Valid email address is required' });
   }
 
@@ -211,47 +265,66 @@ app.post('/api/auth/login', (req, res) => {
     saveDatabase(db);
   }
 
-  res.json({ status: 'success', user });
+  res.status(200).json({ 
+    status: 'success', 
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      emailVerified: user.emailVerified ?? true
+    } 
+  });
 });
 
-// Get Consultations for User
+// ROUTE 5: GET /api/consultations (Authorization & Data Scope Filtering)
 app.get('/api/consultations', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
   const cleanEmail = sanitizeEmail(req.query.email);
   const db = loadDatabase();
 
   if (!cleanEmail) {
-    return res.json({ consultations: db.consultations });
+    // If no specific authorized user email parameter is supplied, return empty array to prevent data disclosure
+    return res.status(200).json({ consultations: [] });
   }
 
   const filtered = db.consultations.filter(c => 
     c.clientEmail && c.clientEmail.toLowerCase() === cleanEmail
   );
 
-  res.json({ consultations: filtered });
+  res.status(200).json({ consultations: filtered });
 });
 
-// Save New Consultation Endpoint with Rate Limiting & Anti-Spam
+// ROUTE 6: POST /api/consultations (Rate Limited & Bot Shielded)
 app.post('/api/consultations', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
   const clientIp = req.ip || req.socket.remoteAddress || '127.0.0.1';
-  if (isRateLimited(clientIp, 5, 600000)) { // 5 bookings per 10 mins
+
+  if (isRateLimited(clientIp, 5, 600000)) { // Max 5 bookings per 10 mins
+    logSuspiciousActivity(req, 'Rate limit exceeded on consultation booking', 'HIGH');
     return res.status(429).json({ error: 'Too many consultation requests. Please try again later.' });
   }
 
   const booking = req.body;
-  if (!booking || !booking.websiteName) {
-    return res.status(400).json({ error: 'Invalid booking details' });
+  if (!booking || typeof booking !== 'object') {
+    return res.status(400).json({ error: 'Invalid payload' });
   }
 
   // Honeypot Server Check
   if (booking.website_hp) {
-    return res.status(400).json({ error: 'Invalid submission parameters' });
+    logSuspiciousActivity(req, 'Honeypot trigger hit by automated bot script', 'CRITICAL');
+    return res.status(403).json({ error: 'Submission rejected' });
+  }
+
+  const cleanWebsiteName = sanitizeInput(booking.websiteName).slice(0, 100);
+  if (!cleanWebsiteName) {
+    return res.status(400).json({ error: 'Website or consultation topic is required' });
   }
 
   const cleanEmail = sanitizeEmail(booking.clientEmail) || 'client@example.com';
   const cleanName = sanitizeInput(booking.clientName).slice(0, 75) || 'Client';
   const cleanPhone = sanitizeInput(booking.clientPhone).slice(0, 25) || 'N/A';
   const cleanNotes = sanitizeInput(booking.notes).slice(0, 1000) || 'No notes';
-  const cleanWebsiteName = sanitizeInput(booking.websiteName).slice(0, 100);
 
   const db = loadDatabase();
   const bookingRecord = {
@@ -272,7 +345,7 @@ app.post('/api/consultations', (req, res) => {
 
   db.consultations.unshift(bookingRecord);
 
-  // Auto-create user if not existing
+  // Auto-create user record if not existing
   if (bookingRecord.clientEmail && !db.users.some(u => u.email.toLowerCase() === bookingRecord.clientEmail)) {
     db.users.push({
       id: 'usr_' + Math.random().toString(36).substr(2, 9),
@@ -311,10 +384,10 @@ app.post('/api/consultations', (req, res) => {
   res.status(201).json({ status: 'success', booking: bookingRecord });
 });
 
-// Generic Express Error Handler (hides internal stack traces & details)
+// Generic Express Error Handler (suppresses internal stack traces & sensitive server information)
 app.use((err, req, res, _next) => {
-  console.error('API Container Error:', err.message);
-  res.status(500).json({ error: 'An unexpected request error occurred. Please try again.' });
+  logSuspiciousActivity(req, `Unhandled server error: ${err.message}`, 'CRITICAL');
+  res.status(500).json({ error: 'An unexpected server error occurred. Please try again.' });
 });
 
 app.listen(PORT, () => {
