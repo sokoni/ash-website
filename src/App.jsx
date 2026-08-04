@@ -216,13 +216,13 @@ export default function App() {
         />
       )}
 
-      {authModalState.isOpen && (
+      {/* {authModalState.isOpen && (
         <AuthModal
           initialMode={authModalState.mode}
           onClose={() => setAuthModalState({ isOpen: false, mode: 'signin' })}
           onLoginSuccess={handleLoginSuccess}
         />
-      )}
+      )} */}
 
     </div>
   );

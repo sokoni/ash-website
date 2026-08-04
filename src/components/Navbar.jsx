@@ -82,7 +82,7 @@ export default function Navbar({
             </button>
           )}
 
-          {user ? (
+          {/* {user ? (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleTabClick('dashboard')}
@@ -124,7 +124,7 @@ export default function Navbar({
                 <span>Register</span>
               </button>
             </div>
-          )}
+          )} */}
 
           {/* Mobile / Tablet Menu Button Toggle */}
           <button
