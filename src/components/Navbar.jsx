@@ -138,43 +138,29 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* Mobile & Tablet Drawer Menu */}
+      {/* Mobile & Tablet Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#9E9E9E]/20 bg-[#0F0F0F]/95 backdrop-blur-xl px-4 py-4 space-y-2 animate-fadeIn">
-          <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[#9E9E9E]/20">
+        <div className="lg:hidden border-t border-[#9E9E9E]/20 bg-[#0F0F0F]/95 backdrop-blur-xl px-4 py-3 shadow-2xl shadow-black/80 animate-fadeIn">
+          <div className="flex flex-col space-y-1.5">
             {navItems.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+                className={`w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-[#FF2ED4]/25 to-[#30BBFF]/25 text-white border border-[#FF2ED4]/40'
-                    : 'bg-[#18181C] text-[#9E9E9E] hover:text-white border border-[#9E9E9E]/20'
+                    ? 'bg-gradient-to-r from-[#FF2ED4]/25 via-[#30BBFF]/20 to-[#30BBFF]/10 text-white border border-[#FF2ED4]/40 shadow-sm shadow-[#FF2ED4]/20'
+                    : 'bg-[#18181C]/90 text-[#9E9E9E] hover:text-white hover:bg-[#222228] border border-[#9E9E9E]/15'
                 }`}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                {activeTab === tab.id && (
+                  <span className="w-2 h-2 rounded-full bg-[#FF2ED4] shadow-sm shadow-[#FF2ED4]"></span>
+                )}
               </button>
             ))}
           </div>
         </div>
       )}
-
-      {/* Horizontal Sub-Navigation Pill Bar for Quick Phone Browsing */}
-      <div className="lg:hidden px-4 py-2 bg-[#18181C]/70 border-t border-[#9E9E9E]/15 overflow-x-auto no-scrollbar flex items-center gap-2">
-        {navItems.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handleTabClick(tab.id)}
-            className={`px-3 py-1 rounded-full text-[11px] font-bold shrink-0 transition-all ${
-              activeTab === tab.id
-                ? 'bg-[#FF2ED4]/20 text-white border border-[#FF2ED4]/40'
-                : 'text-[#9E9E9E] hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
     </header>
   );
 }
