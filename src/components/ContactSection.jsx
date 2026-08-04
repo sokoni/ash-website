@@ -14,7 +14,8 @@ export default function ContactSection({ onBookConsultation }) {
 
         {/* Headline */}
         <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-          Let's Build Something <span className="pastel-glow-text">People Remember.</span>
+          Let's Build Something <br />
+          <span className="pastel-glow-text">People Remember.</span>
         </h2>
 
         {/* Description */}

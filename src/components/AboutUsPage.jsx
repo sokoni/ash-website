@@ -84,7 +84,10 @@ export default function AboutUsPage({ onBookConsultation }) {
 
         {/* CTA Footer Banner */}
         <div className="pt-6 border-t border-[#A0C4FF]/15 text-center space-y-4">
-          <h3 className="text-xl sm:text-2xl font-extrabold text-white">Let's Build Something <span className="pastel-glow-text">People Remember.</span></h3>
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+            Let's Build Something <br />
+            <span className="pastel-glow-text">People Remember.</span>
+          </h3>
           <p className="text-xs sm:text-sm text-[#94A3B8] max-w-xl mx-auto leading-relaxed">
             Whether you're launching a startup, modernizing your business, or looking to dominate search, BlackLine Creative is ready to help.
           </p>
