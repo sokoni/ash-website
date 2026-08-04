@@ -39,11 +39,13 @@ export default function Navbar({
               <Code className="w-4 h-4 sm:w-5 sm:h-5 text-[#30BBFF] group-hover:rotate-12 transition-transform duration-300" />
             </div>
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
+          <div className="flex flex-col leading-none">
+            <div className="font-extrabold text-base sm:text-lg tracking-widest text-white uppercase relative pb-1 border-b-2 border-[#30BBFF]">
+              BLACKLINE
             </div>
-            <span className="text-[10px] sm:text-[11px] text-[#9E9E9E] font-medium tracking-wide">Web Strategy & Custom Design Agency</span>
+            <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1">
+              <span>Creative</span><span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
+            </div>
           </div>
         </div>
 

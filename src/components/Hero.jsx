@@ -18,14 +18,19 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] animate-ping" />
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
-            Build Brands <br />
-            <span className="pastel-glow-text">That Get Found.</span>
+          {/* Main Title matching brand identity */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
+            <span className="text-[#30BBFF]">Build Brands</span> <br />
+            <span className="text-white">That Get Found<span className="text-[#FF2ED4] inline-block animate-pulse">.</span></span>
           </h1>
 
-          {/* Subtitle / Description */}
-          <p className="text-lg sm:text-xl text-[#9E9E9E] max-w-2xl mx-auto leading-relaxed">
+          {/* Sub-headline in Warm Golden Orange */}
+          <div className="text-lg sm:text-2xl font-bold text-[#FFA530] tracking-wide">
+            Strategy. Websites. Search. Growth.
+          </div>
+
+          {/* Description in Italicized Light Text */}
+          <p className="text-base sm:text-lg text-[#F5F5F5]/80 italic max-w-2xl mx-auto leading-relaxed font-light">
             Helping ambitious brands build digital experiences that people remember and search engines understand.
           </p>
 
@@ -49,46 +54,70 @@ export default function Hero({ onExplore, onViewPricing, onBookConsultation }) {
             </button>
           </div>
 
-          {/* Feature Badges Grid */}
-          <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-[#9E9E9E]/20">
-              <div className="w-10 h-10 rounded-xl bg-[#FF2ED4]/10 flex items-center justify-center text-[#FF2ED4] shrink-0">
-                <Video className="w-5 h-5" />
+          {/* 4 Pillars Grid matching Brand Image */}
+          <div className="pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto border-t border-[#9E9E9E]/20 mt-8">
+            {/* STRATEGY */}
+            <div className="glass-panel p-5 rounded-2xl border border-[#30BBFF]/20 text-left space-y-2 bg-[#18181C]/80 hover:border-[#30BBFF]/50 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#30BBFF]/15 flex items-center justify-center text-[#30BBFF] shrink-0">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div className="text-sm font-black tracking-wider uppercase text-white">STRATEGY</div>
               </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">Brand Strategy</div>
-                <div className="text-xs text-[#9E9E9E]">Positioning & Design</div>
-              </div>
+              <ul className="text-xs text-[#9E9E9E] space-y-1 pl-1">
+                <li>• Brand Strategy</li>
+                <li>• Messaging & Positioning</li>
+                <li>• Audience Research</li>
+                <li>• Go-to-Market Systems</li>
+              </ul>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-[#9E9E9E]/20">
-              <div className="w-10 h-10 rounded-xl bg-[#30BBFF]/10 flex items-center justify-center text-[#30BBFF] shrink-0">
-                <UserCheck className="w-5 h-5" />
+            {/* WEBSITES */}
+            <div className="glass-panel p-5 rounded-2xl border border-[#FF2ED4]/20 text-left space-y-2 bg-[#18181C]/80 hover:border-[#FF2ED4]/50 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#FF2ED4]/15 flex items-center justify-center text-[#FF2ED4] shrink-0">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div className="text-sm font-black tracking-wider uppercase text-white">WEBSITES</div>
               </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">Web Development</div>
-                <div className="text-xs text-[#9E9E9E]">High-Velocity Platforms</div>
-              </div>
+              <ul className="text-xs text-[#9E9E9E] space-y-1 pl-1">
+                <li>• Custom Web Design</li>
+                <li>• Full-Stack Development</li>
+                <li>• E-commerce Solutions</li>
+                <li>• Responsive UX Systems</li>
+              </ul>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-[#9E9E9E]/20">
-              <div className="w-10 h-10 rounded-xl bg-[#FFA530]/10 flex items-center justify-center text-[#FFA530] shrink-0">
-                <Zap className="w-5 h-5" />
+            {/* SEARCH */}
+            <div className="glass-panel p-5 rounded-2xl border border-[#FFA530]/20 text-left space-y-2 bg-[#18181C]/80 hover:border-[#FFA530]/50 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#FFA530]/15 flex items-center justify-center text-[#FFA530] shrink-0">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div className="text-sm font-black tracking-wider uppercase text-white">SEARCH</div>
               </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">Technical & Local SEO</div>
-                <div className="text-xs text-[#9E9E9E]">AI Search Optimization</div>
-              </div>
+              <ul className="text-xs text-[#9E9E9E] space-y-1 pl-1">
+                <li>• Technical SEO</li>
+                <li>• AEO / GEO Optimization</li>
+                <li>• Local Search Dominance</li>
+                <li>• Content Strategy</li>
+              </ul>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-[#9E9E9E]/20">
-              <div className="w-10 h-10 rounded-xl bg-[#FF2ED4]/10 flex items-center justify-center text-[#FF2ED4] shrink-0">
-                <ShieldCheck className="w-5 h-5" />
+            {/* GROWTH */}
+            <div className="glass-panel p-5 rounded-2xl border border-[#30BBFF]/20 text-left space-y-2 bg-[#18181C]/80 hover:border-[#30BBFF]/50 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#30BBFF]/15 flex items-center justify-center text-[#30BBFF] shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="text-sm font-black tracking-wider uppercase text-white">GROWTH</div>
               </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">Lead Generation</div>
-                <div className="text-xs text-[#9E9E9E]">Automation & Analytics</div>
-              </div>
+              <ul className="text-xs text-[#9E9E9E] space-y-1 pl-1">
+                <li>• AI Search Optimization</li>
+                <li>• Email Marketing</li>
+                <li>• Marketing Automation</li>
+                <li>• Lead Gen & Analytics</li>
+              </ul>
             </div>
           </div>
 

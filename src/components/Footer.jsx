@@ -85,7 +85,7 @@ export default function Footer({ onNavigate }) {
         </div>
 
         {/* Bottom Text */}
-        <div className="pt-8 border-t border-[#9E9E9E]/15 flex flex-col sm:flex-row items-center justify-between text-xs text-[#9E9E9E] gap-4">
+        <div className="pt-8 border-t border-[#9E9E9E]/15 flex flex-col sm:flex-row items-center justify-between text-xs text-[#9E9E9E] gap-4 mb-6">
           <div>
             © 2026 BlackLine Creative. All Rights Reserved.
           </div>
@@ -96,6 +96,12 @@ export default function Footer({ onNavigate }) {
           </div>
         </div>
 
+      </div>
+
+      {/* Signature Brand Bottom Strip matching Brand Image */}
+      <div className="w-full bg-[#30BBFF] py-3.5 text-[#0F0F0F] text-center font-bold text-xs tracking-wider flex items-center justify-center gap-2 uppercase">
+        <span className="w-4 h-4 rounded-full bg-[#0F0F0F] text-[#30BBFF] flex items-center justify-center text-[10px] font-black">🌐</span>
+        <span>blackline-creative.com</span>
       </div>
     </footer>
   );
