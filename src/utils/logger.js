@@ -20,25 +20,49 @@ export function maskClientData(obj) {
 
 export const logger = {
   info: (message, details = {}) => {
+    const masked = maskClientData(details);
     if (import.meta.env.DEV) {
-      console.log(`[INFO] ${message}`, maskClientData(details));
+      console.log(`[INFO] ${message}`, masked);
     }
+    try {
+      if (Sentry.logger && Sentry.logger.info) {
+        Sentry.logger.info(message, masked);
+      }
+    } catch {}
   },
 
   warn: (message, details = {}) => {
-    console.warn(`[WARN] ${message}`, maskClientData(details));
+    const masked = maskClientData(details);
+    console.warn(`[WARN] ${message}`, masked);
+    try {
+      if (Sentry.logger && Sentry.logger.warn) {
+        Sentry.logger.warn(message, masked);
+      }
+    } catch {}
   },
 
   error: (message, error = null, details = {}) => {
     const maskedDetails = maskClientData(details);
     console.error(`[ERROR] ${message}`, error?.message || error || '', maskedDetails);
 
-    if (import.meta.env.VITE_SENTRY_DSN) {
-      try {
-        Sentry.captureException(error || new Error(message), { extra: maskedDetails });
-      } catch {}
-    }
+    try {
+      if (Sentry.logger && Sentry.logger.error) {
+        Sentry.logger.error(message, maskedDetails);
+      }
+      Sentry.captureException(error || new Error(message), { extra: maskedDetails });
+    } catch {}
   }
 };
+
+/**
+ * Send a test Sentry log
+ */
+export function sendTestSentryLog() {
+  if (Sentry.logger && Sentry.logger.info) {
+    Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' });
+  } else {
+    Sentry.captureMessage('User triggered test log', { extra: { log_source: 'sentry_test' } });
+  }
+}
 
 export default logger;

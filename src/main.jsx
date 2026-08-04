@@ -24,6 +24,10 @@ Sentry.init({
   }
 });
 
+if (Sentry.logger && Sentry.logger.info) {
+  Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' });
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
