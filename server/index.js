@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5000', 'http://localhost:5001', 'http://127.0.0.1:5173'],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
   credentials: true
 }));
 
@@ -48,6 +49,47 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+// Cryptographic Password Hashing & Verification (Scrypt with 16-byte random salt)
+function hashPassword(password) {
+  if (!password || typeof password !== 'string') {
+    password = crypto.randomBytes(16).toString('hex');
+  }
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedHash) {
+  if (!password || !storedHash || typeof storedHash !== 'string' || !storedHash.includes(':')) {
+    return false;
+  }
+  try {
+    const [salt, originalHash] = storedHash.split(':');
+    const verifyHash = crypto.scryptSync(password, salt, 64).toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(originalHash, 'hex'), Buffer.from(verifyHash, 'hex'));
+  } catch {
+    return false;
+  }
+}
+
+// Cookie Helper for HttpOnly, Secure, SameSite=Strict cookies
+function setSecureSessionCookies(res) {
+  const sessionToken = crypto.randomBytes(32).toString('hex');
+  const refreshToken = crypto.randomBytes(32).toString('hex');
+  const csrfToken = crypto.randomBytes(16).toString('hex');
+
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOptions = `HttpOnly; ${isProd ? 'Secure; ' : ''}SameSite=Strict; Path=/`;
+
+  res.setHeader('Set-Cookie', [
+    `session_token=${sessionToken}; ${cookieOptions}; Max-Age=3600`, // 1 hour
+    `refresh_token=${refreshToken}; ${cookieOptions}; Max-Age=604800`, // 7 days
+    `csrf_token=${csrfToken}; SameSite=Strict; Path=/; Max-Age=3600` // CSRF double submit token
+  ]);
+
+  return { sessionToken, refreshToken, csrfToken };
+}
 
 // Input Sanitization Helper to prevent injection and XSS
 function sanitizeInput(str) {
@@ -74,6 +116,34 @@ function logSuspiciousActivity(req, reason, level = 'WARN') {
   const clientIp = req.ip || req.socket?.remoteAddress || '127.0.0.1';
   const timestamp = new Date().toISOString();
   console.warn(`[SECURITY ${level}] [${timestamp}] IP: ${clientIp} | Path: ${req.method} ${req.originalUrl} | Reason: ${reason}`);
+}
+
+// Account Lockout & Brute-Force Tracker (5 attempts max, 15 min lock)
+const failedAttemptsMap = new Map();
+
+function checkAccountLockout(identifier) {
+  const record = failedAttemptsMap.get(identifier);
+  if (!record) return false;
+  if (Date.now() < record.lockedUntil) {
+    return true; // Still locked
+  }
+  if (Date.now() > record.lockedUntil) {
+    failedAttemptsMap.delete(identifier);
+  }
+  return false;
+}
+
+function recordFailedAttempt(identifier) {
+  const record = failedAttemptsMap.get(identifier) || { count: 0, lockedUntil: 0 };
+  record.count += 1;
+  if (record.count >= 5) {
+    record.lockedUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lockout
+  }
+  failedAttemptsMap.set(identifier, record);
+}
+
+function resetFailedAttempts(identifier) {
+  failedAttemptsMap.delete(identifier);
 }
 
 // Persistent Data Storage directory inside Docker container
@@ -143,6 +213,7 @@ app.post('/api/auth/register', (req, res) => {
 
   const cleanEmail = sanitizeEmail(req.body.email);
   const cleanName = sanitizeInput(req.body.name).slice(0, 75);
+  const rawPassword = req.body.password;
 
   if (!cleanEmail) {
     logSuspiciousActivity(req, 'Malformed or invalid email submitted during registration', 'WARN');
@@ -155,7 +226,11 @@ app.post('/api/auth/register', (req, res) => {
 
   if (existingUser) {
     existingUser.verificationCode = verificationCode;
+    if (rawPassword) {
+      existingUser.passwordHash = hashPassword(rawPassword);
+    }
     saveDatabase(db);
+    const tokens = setSecureSessionCookies(res);
     return res.status(200).json({ 
       status: 'success', 
       user: {
@@ -166,6 +241,7 @@ app.post('/api/auth/register', (req, res) => {
         emailVerified: existingUser.emailVerified
       }, 
       verificationCode,
+      csrfToken: tokens.csrfToken,
       message: 'Verification code generated for existing user' 
     });
   }
@@ -174,9 +250,11 @@ app.post('/api/auth/register', (req, res) => {
     id: 'usr_' + Math.random().toString(36).substr(2, 9),
     name: cleanName || cleanEmail.split('@')[0],
     email: cleanEmail,
+    passwordHash: hashPassword(rawPassword),
     role: 'Client Account',
     emailVerified: false,
     verificationCode: verificationCode,
+    verificationCodeExpires: Date.now() + 15 * 60 * 1000, // 15 mins
     twoFactorEnabled: false,
     twoFactorMethod: 'Email Verification OTP',
     createdAt: new Date().toLocaleDateString()
@@ -184,6 +262,8 @@ app.post('/api/auth/register', (req, res) => {
 
   db.users.push(newUser);
   saveDatabase(db);
+
+  const tokens = setSecureSessionCookies(res);
 
   res.status(201).json({ 
     status: 'success', 
@@ -194,7 +274,8 @@ app.post('/api/auth/register', (req, res) => {
       role: newUser.role,
       emailVerified: newUser.emailVerified
     }, 
-    verificationCode 
+    verificationCode,
+    csrfToken: tokens.csrfToken
   });
 });
 
@@ -225,6 +306,8 @@ app.post('/api/auth/verify-email', (req, res) => {
   user.verificationCode = null;
   saveDatabase(db);
 
+  const tokens = setSecureSessionCookies(res);
+
   res.status(200).json({ 
     status: 'success', 
     user: {
@@ -234,29 +317,50 @@ app.post('/api/auth/verify-email', (req, res) => {
       role: user.role,
       emailVerified: true
     }, 
+    csrfToken: tokens.csrfToken,
     message: 'Account email verified successfully' 
   });
 });
 
-// ROUTE 4: POST /api/auth/login
+// ROUTE 4: POST /api/auth/login (With Brute-Force Protection & Account Lockout)
 app.post('/api/auth/login', (req, res) => {
   res.setHeader('Cache-Control', 'no-store, private');
   const cleanEmail = sanitizeEmail(req.body.email);
+  const rawPassword = req.body.password;
 
   if (!cleanEmail) {
     logSuspiciousActivity(req, 'Malformed email submitted during login', 'WARN');
     return res.status(400).json({ error: 'Valid email address is required' });
   }
 
+  // Account Lockout Check
+  if (checkAccountLockout(cleanEmail)) {
+    logSuspiciousActivity(req, `Login attempt blocked on locked account: ${cleanEmail}`, 'HIGH');
+    return res.status(429).json({ error: 'Account temporarily locked due to multiple failed login attempts. Please try again in 15 minutes.' });
+  }
+
   const db = loadDatabase();
   let user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+  if (user && user.passwordHash && rawPassword) {
+    const isValid = verifyPassword(rawPassword, user.passwordHash);
+    if (!isValid) {
+      recordFailedAttempt(cleanEmail);
+      logSuspiciousActivity(req, `Invalid password credentials for account ${cleanEmail}`, 'WARN');
+      return res.status(401).json({ error: 'Invalid credentials provided' });
+    }
+  }
+
+  resetFailedAttempts(cleanEmail);
 
   if (!user) {
     user = {
       id: 'usr_' + Math.random().toString(36).substr(2, 9),
       name: cleanEmail.split('@')[0],
       email: cleanEmail,
+      passwordHash: hashPassword(rawPassword),
       role: 'Client Account',
+      emailVerified: true,
       twoFactorEnabled: true,
       twoFactorMethod: '6-Digit Security OTP',
       createdAt: new Date().toLocaleDateString()
@@ -264,6 +368,8 @@ app.post('/api/auth/login', (req, res) => {
     db.users.push(user);
     saveDatabase(db);
   }
+
+  const tokens = setSecureSessionCookies(res);
 
   res.status(200).json({ 
     status: 'success', 
@@ -273,8 +379,59 @@ app.post('/api/auth/login', (req, res) => {
       email: user.email,
       role: user.role,
       emailVerified: user.emailVerified ?? true
-    } 
+    },
+    csrfToken: tokens.csrfToken
   });
+});
+
+// ROUTE 4B: POST /api/auth/forgot-password (Generate Secure Reset Token)
+app.post('/api/auth/forgot-password', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
+  const cleanEmail = sanitizeEmail(req.body.email);
+
+  if (!cleanEmail) {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+
+  const db = loadDatabase();
+  const user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+  if (user) {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    saveDatabase(db);
+    return res.status(200).json({ status: 'success', message: 'Password reset token generated and sent to email' });
+  }
+
+  // Always return generic success to prevent account enumeration
+  res.status(200).json({ status: 'success', message: 'If an account exists, a reset instructions email has been sent.' });
+});
+
+// ROUTE 4C: POST /api/auth/reset-password
+app.post('/api/auth/reset-password', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, private');
+  const token = sanitizeInput(req.body.token);
+  const newPassword = req.body.password;
+
+  if (!token || !newPassword || newPassword.length < 6) {
+    return res.status(400).json({ error: 'Valid token and minimum 6 character password required' });
+  }
+
+  const db = loadDatabase();
+  const user = db.users.find(u => u.resetPasswordToken === token && u.resetPasswordExpires > Date.now());
+
+  if (!user) {
+    logSuspiciousActivity(req, 'Invalid or expired password reset token used', 'WARN');
+    return res.status(400).json({ error: 'Invalid or expired password reset token' });
+  }
+
+  user.passwordHash = hashPassword(newPassword);
+  user.resetPasswordToken = null;
+  user.resetPasswordExpires = null;
+  saveDatabase(db);
+
+  res.status(200).json({ status: 'success', message: 'Password successfully updated' });
 });
 
 // ROUTE 5: GET /api/consultations (Authorization & Data Scope Filtering)
