@@ -98,12 +98,12 @@ export default function LivePreviewModal({ template, onClose, onBuyNow }) {
             <button
               onClick={() => {
                 onClose();
-                onBuyNow(template);
+                onBuyNow({ id: template.id, name: `${template.name} Strategy Consultation` });
               }}
               className="btn-pastel-primary px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2"
             >
-              <ShoppingCart className="w-4 h-4" />
-              <span>Buy (${template.price})</span>
+              <Sparkles className="w-4 h-4 text-[#070A0F]" />
+              <span>Book Strategy Consultation</span>
             </button>
 
             <button
