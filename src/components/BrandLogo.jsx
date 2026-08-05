@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function BrandLogo({ className = "h-9 w-auto", showText = true, onClick }) {
+export default function BrandLogo({ className = "h-10 w-auto", showText = true, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -15,13 +15,19 @@ export default function BrandLogo({ className = "h-9 w-auto", showText = true, o
       </div>
 
       {showText && (
-        <div className="flex flex-col leading-none">
-          <div className="font-extrabold text-base sm:text-lg tracking-widest text-white uppercase relative pb-1 border-b-2 border-[#30BBFF]">
+        <div className="flex flex-col leading-none select-none">
+          <div className="font-extrabold text-base sm:text-lg tracking-[0.18em] text-white uppercase">
             BLACKL<span className="pink-i">ı</span>NE
           </div>
-          <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1">
+
+          {/* Signature Multi-Color Gradient Divider Line + Pink Accent Dot */}
+          <div className="relative my-1.5 w-full">
+            <div className="w-full h-[2.5px] rounded-full bg-gradient-to-r from-[#FFF37A] via-[#FFB347] via-[#FF2ED4] via-[#9B51E0] to-[#30BBFF] shadow-sm shadow-[#FF2ED4]/40" />
+            <span className="absolute -bottom-2 right-[27%] w-1.5 h-1.5 rounded-full bg-[#FF2ED4] shadow-md shadow-[#FF2ED4] animate-pulse" />
+          </div>
+
+          <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-0.5">
             <span>Creat<span className="pink-i">ı</span>ve</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
           </div>
         </div>
       )}
