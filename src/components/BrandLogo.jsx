@@ -20,10 +20,9 @@ export default function BrandLogo({ className = "h-10 w-auto", showText = true, 
             BLACKL<span className="pink-i">ı</span>NE
           </div>
 
-          {/* Signature Multi-Color Gradient Divider Line + Pink Accent Dot */}
-          <div className="relative my-1.5 w-full">
+          {/* Signature Multi-Color Gradient Divider Line */}
+          <div className="my-1.5 w-full">
             <div className="w-full h-[2.5px] rounded-full bg-gradient-to-r from-[#FFF37A] via-[#FFB347] via-[#FF2ED4] via-[#9B51E0] to-[#30BBFF] shadow-sm shadow-[#FF2ED4]/40" />
-            <span className="absolute -bottom-2 right-[27%] w-1.5 h-1.5 rounded-full bg-[#FF2ED4] shadow-md shadow-[#FF2ED4] animate-pulse" />
           </div>
 
           <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-0.5">
