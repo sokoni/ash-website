@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, User, LogOut, Code, ShieldCheck, Menu, X } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 export default function Navbar({ 
   user, 
@@ -30,24 +31,10 @@ export default function Navbar({
       <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 h-20 flex items-center justify-between">
         
         {/* Brand Logo */}
-        <div 
+        <BrandLogo
+          className="h-10 sm:h-11 w-auto"
           onClick={() => handleTabClick('marketplace')}
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group shrink-0"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#FF2ED4] via-[#30BBFF] to-[#FFA530] p-0.5 shadow-lg shadow-[#FF2ED4]/20 group-hover:scale-105 transition-transform duration-300">
-            <div className="w-full h-full bg-[#0F0F0F] rounded-[10px] flex items-center justify-center">
-              <Code className="w-4 h-4 sm:w-5 sm:h-5 text-[#30BBFF] group-hover:rotate-12 transition-transform duration-300" />
-            </div>
-          </div>
-          <div className="flex flex-col leading-none">
-            <div className="font-extrabold text-base sm:text-lg tracking-widest text-white uppercase relative pb-1 border-b-2 border-[#30BBFF]">
-              BLACKLINE
-            </div>
-            <div className="font-medium text-sm sm:text-base tracking-tight text-white flex items-center pt-1">
-              <span>Creat<span className="pink-i">ı</span>ve</span><span className="w-1.5 h-1.5 rounded-full bg-[#FF2ED4] ml-0.5 inline-block animate-pulse"></span>
-            </div>
-          </div>
-        </div>
+        />
 
         {/* Desktop Navigation Tabs */}
         <nav className="hidden lg:flex items-center gap-1 bg-[#18181C]/90 p-1.5 rounded-full border border-[#9E9E9E]/20">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Code, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 export default function Footer({ onNavigate }) {
   const scrollToContact = () => {
@@ -19,14 +20,7 @@ export default function Footer({ onNavigate }) {
           
           {/* Company & Tagline */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FF2ED4] via-[#30BBFF] to-[#FFA530] p-0.5 shadow-lg shadow-[#FF2ED4]/20">
-                <div className="w-full h-full bg-[#0F0F0F] rounded-[6px] flex items-center justify-center">
-                  <Code className="w-4 h-4 text-[#30BBFF]" />
-                </div>
-              </div>
-              <span className="font-extrabold text-lg text-white">BlackLine <span className="pastel-glow-text">Creative</span></span>
-            </div>
+            <BrandLogo className="h-8 w-auto" onClick={() => onNavigate && onNavigate('marketplace')} />
             <p className="text-sm font-semibold text-[#FFA530] tracking-tight">
               Build Brands That Get Found.
             </p>
