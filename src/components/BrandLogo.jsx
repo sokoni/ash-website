@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function BrandLogo({ className = "h-10 sm:h-12 w-auto", onClick }) {
+export default function BrandLogo({ className = "h-16 sm:h-20 md:h-24 w-auto", onClick }) {
   return (
     <div
       onClick={onClick}
@@ -9,7 +9,7 @@ export default function BrandLogo({ className = "h-10 sm:h-12 w-auto", onClick }
       <img
         src="/blackline-logo.png"
         alt="BlackLine Creative Official Logo"
-        className={`${className} object-contain max-h-12 sm:max-h-14 w-auto`}
+        className={`${className} object-contain max-h-24 sm:max-h-28 w-auto`}
       />
     </div>
   );
