@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import WebsiteCatalog from './components/WebsiteCatalog';
 import LivePreviewModal from './components/LivePreviewModal';
 import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
@@ -121,20 +120,11 @@ export default function App() {
       <main className="flex-1 w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16">
 
         {activeTab === 'marketplace' && (
-          <>
-            <Hero
-              onExplore={() => {
-                const el = document.getElementById('catalog');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              onViewPricing={() => setActiveTab('pricing')}
-              onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: 'Start My Project Consultation' })}
-            />
-            <WebsiteCatalog
-              onSelectPreview={(site) => setPreviewTemplate(site)}
-              onSelectBuy={(site) => setBuyTarget(site)}
-            />
-          </>
+          <Hero
+            onExplore={() => setActiveTab('pricing')}
+            onViewPricing={() => setActiveTab('pricing')}
+            onBookConsultation={() => setBuyTarget({ id: 'consult-free', name: 'Start My Project Consultation' })}
+          />
         )}
 
         {activeTab === 'theory' && (
