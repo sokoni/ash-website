@@ -32,7 +32,7 @@ export default function Navbar({
         
         {/* Brand Logo */}
         <BrandLogo
-          className="h-10 sm:h-14 md:h-16 w-auto"
+          className="h-14 sm:h-18 md:h-20 w-auto"
           onClick={() => handleTabClick('marketplace')}
         />
 
