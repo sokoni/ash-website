@@ -14,9 +14,9 @@ export default function Navbar({
 
   const navItems = [
     { id: 'marketplace', label: 'Home' },
+    { id: 'projects', label: 'Portfolio' },
     { id: 'theory', label: 'BlackLine Theory' },
     { id: 'services', label: 'Services' },
-    // { id: 'projects', label: 'Projects' }, // Commented out
     { id: 'about', label: 'About Us' },
     { id: 'pricing', label: 'Packages' }
   ];
