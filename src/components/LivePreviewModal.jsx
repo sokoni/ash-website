@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Monitor, Tablet, Smartphone, Code, ShoppingCart, Check, ExternalLink, Sparkles } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 export default function LivePreviewModal({ template, onClose, onBuyNow }) {
   const [device, setDevice] = useState('desktop'); // desktop, tablet, mobile
@@ -138,17 +139,22 @@ export default function LivePreviewModal({ template, onClose, onBuyNow }) {
               <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-[#070A0F] to-[#0E1420] space-y-6">
                 
                 {/* Simulated Web Header */}
-                <div className="flex items-center justify-between pb-4 border-b border-[#A0C4FF]/15">
-                  <div className="flex items-center gap-2 font-bold text-white">
-                    <Sparkles className="w-5 h-5 text-[#38BDF8]" />
-                    <span>{template.name} Demo</span>
+                <div className="flex items-center justify-between pb-4 border-b border-[#A0C4FF]/15 gap-2">
+                  <div className="flex items-center gap-2 font-bold text-white min-w-0">
+                    <BrandLogo className="h-6 w-auto shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">{template.name} Demo</span>
                   </div>
-                  <div className="flex gap-3 text-xs text-[#94A3B8]">
-                    <span>Features</span>
-                    <span>Pricing</span>
-                    <span>Docs</span>
-                    <span className="text-[#A0C4FF] font-semibold">Contact</span>
-                  </div>
+                  {device !== 'mobile' && (
+                    <div className="hidden sm:flex gap-3 text-xs text-[#94A3B8] shrink-0">
+                      <span>Features</span>
+                      <span>Pricing</span>
+                      <span>Docs</span>
+                      <span className="text-[#A0C4FF] font-semibold">Contact</span>
+                    </div>
+                  )}
+                  {device === 'mobile' && (
+                    <span className="px-2 py-0.5 text-[10px] rounded-md bg-[#38BDF8]/15 text-[#38BDF8] font-mono shrink-0">Mobile</span>
+                  )}
                 </div>
 
                 {/* Simulated Hero */}
