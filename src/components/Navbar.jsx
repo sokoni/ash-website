@@ -28,11 +28,11 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-[#9E9E9E]/20 bg-[#0F0F0F]/90 backdrop-blur-md">
-      <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 h-24 sm:h-28 py-2 flex items-center justify-between">
+      <div className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 min-h-[9rem] sm:min-h-[11rem] py-3 flex items-center justify-between">
         
         {/* Brand Logo */}
         <BrandLogo
-          className="h-16 sm:h-20 md:h-24 w-auto"
+          className="h-24 sm:h-32 md:h-40 w-auto"
           onClick={() => handleTabClick('marketplace')}
         />
 

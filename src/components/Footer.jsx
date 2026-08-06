@@ -20,7 +20,7 @@ export default function Footer({ onNavigate }) {
           
           {/* Company & Tagline */}
           <div className="space-y-3 md:col-span-1">
-            <BrandLogo className="h-14 sm:h-18 w-auto" onClick={() => onNavigate && onNavigate('marketplace')} />
+            <BrandLogo className="h-20 sm:h-26 w-auto" onClick={() => onNavigate && onNavigate('marketplace')} />
             <p className="text-sm font-semibold text-[#FFA530] tracking-tight">
               Build Brands That Get Found.
             </p>
