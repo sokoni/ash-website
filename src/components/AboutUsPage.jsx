@@ -32,20 +32,20 @@ export default function AboutUsPage({ onBookConsultation }) {
 
   const founders = [
     {
-      roleTag: 'Founder & CEO',
-      name: '[ Founder Name ]',
-      title: 'Founder / Brand Strategy & Creative Director',
+      roleTag: 'Co-Founder & CEO',
+      name: '[ Co-Founder Name ]',
+      title: 'Co-Founder / Brand Strategy & Creative Director',
       image: '/founder-placeholder.png',
       accentColor: 'from-[#38BDF8] to-[#A0C4FF]',
       borderColor: 'border-[#38BDF8]/30',
       badgeBg: 'bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/30',
-      bio: 'Placeholder bio for the Founder. Share her origin story, vision for BlackLine Creative, strategic positioning expertise, and background leading high-velocity brand transformations here.',
+      bio: 'Placeholder bio for the Co-Founder. Share her origin story, vision for BlackLine Creative, strategic positioning expertise, and background leading high-velocity brand transformations here.',
       expertise: ['Brand Strategy', 'Creative Direction', 'Digital Architecture', 'Client Growth'],
       quote: '"Building digital foundations that elevate brands and create lasting market impact."',
       socials: {
         linkedin: '#',
         twitter: '#',
-        email: 'mailto:founder@blacklinecreative.com'
+        email: 'mailto:cofounder@blacklinecreative.com'
       }
     },
     {
@@ -62,7 +62,7 @@ export default function AboutUsPage({ onBookConsultation }) {
       socials: {
         linkedin: '#',
         github: '#',
-        email: 'mailto:cofounder@blacklinecreative.com'
+        email: 'mailto:cofounder2@blacklinecreative.com'
       }
     }
   ];
@@ -228,10 +228,10 @@ export default function AboutUsPage({ onBookConsultation }) {
         {/* Notice Info Banner */}
         <div className="p-4 rounded-2xl bg-[#38BDF8]/5 border border-[#38BDF8]/20 text-center space-y-1">
           <p className="text-xs font-bold text-[#38BDF8]">
-            💡 Founder & Co-Founder Placeholders Active
+            💡 Co-Founders Placeholders Active
           </p>
           <p className="text-[11px] text-[#94A3B8]">
-            When you're ready, simply pass your actual names, headshots, bio stories, and social links to replace these placeholders!
+            When you're ready, simply pass your actual names, headshots, bio stories, and social links to replace these co-founder placeholders!
           </p>
         </div>
       </div>
