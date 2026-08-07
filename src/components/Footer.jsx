@@ -2,6 +2,14 @@ import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
+const InstagramIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
 export default function Footer({ onNavigate }) {
   const scrollToContact = () => {
     const el = document.getElementById('contact');
@@ -27,6 +35,17 @@ export default function Footer({ onNavigate }) {
             <p className="text-xs text-[#9E9E9E] leading-relaxed">
               Strategic web development, brand positioning, search optimization, and scalable growth systems.
             </p>
+            <div className="pt-1">
+              <a
+                href="https://instagram.com/blcklinecreative"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#18181C] border border-[#FF2ED4]/30 text-[#FF2ED4] hover:bg-[#FF2ED4]/15 hover:border-[#FF2ED4]/50 transition-all text-xs font-bold font-mono"
+              >
+                <InstagramIcon className="w-4 h-4 text-[#FF2ED4]" />
+                <span>@blcklinecreative</span>
+              </a>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -84,6 +103,15 @@ export default function Footer({ onNavigate }) {
             © 2026 BlackLine Creative. All Rights Reserved.
           </div>
           <div className="flex items-center gap-4">
+            <a
+              href="https://instagram.com/blcklinecreative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[#FF2ED4] hover:underline font-medium"
+            >
+              <InstagramIcon className="w-3.5 h-3.5" />
+              <span>@blcklinecreative</span>
+            </a>
             <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-[#30BBFF]" /> SSL Protected</span>
             <span>Privacy Policy</span>
             <span>Terms of Service</span>

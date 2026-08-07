@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { Sparkles, User, LogOut, Code, ShieldCheck, Menu, X } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
+const InstagramIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
 export default function Navbar({ 
   user, 
   onOpenAuth, 
@@ -53,8 +61,20 @@ export default function Navbar({
           ))}
         </nav>
 
-        {/* User Account / Auth Actions */}
+        {/* User Account / Auth Actions / Social */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Instagram Handle Link */}
+          <a
+            href="https://instagram.com/blcklinecreative"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#18181C] border border-[#FF2ED4]/30 text-[#FF2ED4] hover:bg-[#FF2ED4]/15 hover:border-[#FF2ED4]/50 transition-all flex items-center gap-1.5 text-xs font-bold"
+            title="Follow on Instagram @blcklinecreative"
+          >
+            <InstagramIcon className="w-4 h-4 text-[#FF2ED4]" />
+            <span className="hidden sm:inline text-[11px] font-mono">@blcklinecreative</span>
+          </a>
+
           {/* Scheduled Consultations Badge */}
           {purchasedCount > 0 && (
             <button
@@ -68,50 +88,6 @@ export default function Navbar({
               </span>
             </button>
           )}
-
-          {/* {user ? (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleTabClick('dashboard')}
-                className={`flex items-center gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
-                  activeTab === 'dashboard'
-                    ? 'bg-[#FF2ED4]/20 border-[#FF2ED4] text-white shadow-lg shadow-[#FF2ED4]/10'
-                    : 'bg-[#18181C] border-[#9E9E9E]/25 text-[#F5F5F5] hover:border-[#30BBFF]/50 hover:text-white'
-                }`}
-              >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-[#FF2ED4] to-[#30BBFF] text-[#0F0F0F] font-bold flex items-center justify-center text-[10px] sm:text-xs">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
-                </div>
-                <span className="max-w-[70px] sm:max-w-[90px] truncate">{user.name || user.email}</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 hidden sm:inline" title="Verified Session" />
-              </button>
-
-              <button
-                onClick={onLogout}
-                className="px-2.5 sm:px-3.5 py-2 rounded-xl bg-[#18181C] border border-red-500/25 text-red-400 hover:bg-red-500/15 hover:border-red-500/50 text-xs font-bold flex items-center gap-1.5 transition-all"
-                title="Sign Out"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Sign Out</span>
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                onClick={() => onOpenAuth('signin')}
-                className="px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#F5F5F5] hover:text-white transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => onOpenAuth('signup')}
-                className="btn-pastel-primary px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5"
-              >
-                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0F0F0F]" />
-                <span>Register</span>
-              </button>
-            </div>
-          )} */}
 
           {/* Mobile / Tablet Menu Button Toggle */}
           <button
@@ -145,6 +121,19 @@ export default function Navbar({
                 )}
               </button>
             ))}
+
+            <a
+              href="https://instagram.com/blcklinecreative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-between bg-[#18181C]/90 text-[#FF2ED4] hover:bg-[#FF2ED4]/15 border border-[#FF2ED4]/30 transition-all mt-1"
+            >
+              <span className="flex items-center gap-2">
+                <InstagramIcon className="w-4 h-4" />
+                <span>@blcklinecreative</span>
+              </span>
+              <span className="text-[10px] font-mono text-[#9E9E9E]">Instagram</span>
+            </a>
           </div>
         </div>
       )}
